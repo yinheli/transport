@@ -67,16 +67,17 @@ class Transport():
         wb = openpyxl.load_workbook(excel)
         sheet = wb.active
         values = [[cell.value for cell in row]
-                  for row in sheet['A2':'E'+str(sheet.max_row)]]
-        values = list(filter(lambda row: row[0] != None, values))
+                  for row in sheet['A2':'G'+str(sheet.max_row)]]
+        values = list(
+            filter(lambda row: row[0] != None and row[1] != None, values))
         for row in values:
             for i, v in enumerate(row):
                 if i == 0:
                     continue
                 v = v.strip() if v else ''
-                if i in (2, 3):
+                if i in (2, 3, 4, 5):
                     v = v.upper()
-        sorted(values, key=lambda it: it[2]+it[3])
+        sorted(values, key=lambda it: it[2]+it[4])
         return values
 
     def _parse_table(self, sqlfile):
@@ -88,9 +89,9 @@ class Transport():
                             data, flags=re.IGNORECASE)
             for item in data:
                 try:
-                    table, fields = self._parse_table_item(item)
-                    if table:
-                        tables[table] = fields
+                    table_name, table_options = self._parse_table_item(item)
+                    if table_name:
+                        tables[table_name] = table_options
                 except Exception as e:
                     print('parse sql file exception')
                     raise e
@@ -98,47 +99,60 @@ class Transport():
 
     def _parse_table_item(self, table):
         """解析单个建表 table 结构"""
-        m = re.search(r"CREATE\sTABLE\s(.*)\s?\(([\s\S]*)\)\nCOMMENT", table,
-                      re.MULTILINE | re.IGNORECASE)
+        # fixme: 一个正则表达 "bucket" 的匹配，
+        # 暂时用两个来处理
+
+        p1 = r"CREATE\sTABLE\s(.*)\s*\(([\s\S]*)\)\n[\s\S]+(CLUSTERED.*?BUCKETS).*"
+        p2 = r"CREATE\sTABLE\s(.*)\s*\(([\s\S]*)\)\n[\s\S]+"
+
+        if re.match(r'', table, re.MULTILINE | re.IGNORECASE):
+            m = re.search(p1, table,
+                          re.MULTILINE | re.IGNORECASE)
+        else:
+            m = re.search(p2, table,
+                          re.MULTILINE | re.IGNORECASE)
         if not m:
             return (None, None)
         name = m.group(1).split('.')[1].upper().strip()
-        fields = []
-        found_dt = False
+        # 自己加的字段
+        fields = [{'field': 'rpt_dt', 'type': 'STRING', 'comment': '报表跑批日期'}]
         for it in [re.split(r'\s+', x.strip()) for x in re.split(r'[\n\s]+\,', m.group(2))]:
             field = it[0].strip()
             item = {'field': field, 'type': it[1].strip()}
             if len(it) > 3:
                 item['comment'] = it[3].replace("'", '').strip()
-            if field.lower() == 'data_dt':
-                found_dt = True
             fields.append(item)
 
-        if not found_dt:
-            fields.append(
-                {'field': 'DATA_DT', 'type': 'STRING', 'comment': '数据日期'})
-        return (name, fields)
+        buckets = None
+        if len(m.groups()) > 2:
+            buckets = m.group(3)
+
+        return (name, {'fields': fields, 'buckets': buckets})
 
     def _group_data(self, excel_data, table_tpl, chunk_size=5):
         """处理数据分组"""
         groups = []
 
         tables = []
-        last_user = ''
-        user = ''
-        user_comment = ''
+        last_system = ''
+        system = ''
+        system_comment = ''
+        source_db = ''
+        target_db = ''
 
         # 按用户/系统分组
         for idx, row in enumerate(excel_data):
-            user, user_comment, table, table_comment = row[2], row[1], row[3], row[4]
+            system, system_comment, source_db, target_db, table, table_comment = \
+                row[2], row[1], row[3], row[4], row[5], row[6]
 
             if table not in table_tpl:
                 continue
 
-            if last_user != '' and last_user != user:
+            if last_system != '' and last_system != system:
                 groups.append({
-                    'user': excel_data[idx-1][2],
-                    'user_comment': excel_data[idx-1][1],
+                    'system': excel_data[idx-1][2],
+                    'system_comment': excel_data[idx-1][1],
+                    'target_db': excel_data[idx-1][4],
                     'tables': tables,
                 })
                 tables = []
@@ -146,16 +160,19 @@ class Transport():
             item = {
                 'table': table,
                 'table_comment': table_comment,
-                'fields': table_tpl[table],
+                'source_db': source_db,
+                'target_db': target_db,
+                'options': table_tpl[table],
             }
             tables.append(item)
 
-            last_user = user
+            last_system = system
 
         if tables:
             groups.append({
-                'user': user,
-                'user_comment': user_comment,
+                'system': system,
+                'system_comment': system_comment,
+                'target_db': target_db,
                 'tables': tables,
             })
 
@@ -169,14 +186,14 @@ class Transport():
                 for tbs in list([tables[i:i+chunk_size] for i in range(0, len(tables), chunk_size)]):
                     if tbs:
                         g['tables'] = tbs
-                        g['group_name'] = g['user'] + str(gid)
-                        chunk_groups.append(g)
+                        g['group_name'] = g['system'] + str(gid)
+                        chunk_groups.append(g.copy())
                         gid += 1
             else:
-                g['group_name'] = g['user']
+                g['group_name'] = g['system']
                 chunk_groups.append(g)
 
-        self.write_json(chunk_groups, 'out_chunk_group.json')
+        # self.write_json(chunk_groups, 'out_chunk_group.json')
 
         return chunk_groups
 
