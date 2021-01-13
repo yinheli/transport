@@ -1,0 +1,1544 @@
+DROP TABLE IF EXISTS GDM.BASE_CASH_ACCT;
+CREATE TABLE GDM.BASE_CASH_ACCT (
+    AccNo STRING COMMENT '账号'
+   ,OpInst_No STRING COMMENT '营业机构号'
+   ,Ccy_CdNm STRING COMMENT '货币代号'
+   ,Csh_Acc_Cgy STRING COMMENT '现金账户类别'
+   ,Csh_BnkTailBox STRING COMMENT '现金尾箱'
+   ,BnkTailBox_Cgy STRING COMMENT '尾箱类别'
+   ,Acc_Chn_Nm STRING COMMENT '帐户中文名'
+   ,AccBal DECIMAL(22,2) COMMENT '帐户余额'
+   ,AccNo_Dtl_SN STRING COMMENT '账号明细序号'
+   ,OpnAcc_Dt STRING COMMENT '开户日期'
+   ,CnclAcct_Dt STRING COMMENT '销户日期'
+   ,Tlr_No STRING COMMENT '柜员号'
+   ,BnkTailBox_Ind STRING COMMENT '尾箱标志'
+   ,BnkTailBox_Ahr_St STRING COMMENT '尾箱权限状态'
+   ,UUID STRING COMMENT 'UUID'
+)
+COMMENT '现金基础表'
+PARTITIONED BY (DATA_DT STRING)       --按照数据日期天分区
+CLUSTERED BY  (UUID)  INTO 3 BUCKETS  --分桶
+STORED AS ORC TBLPROPERTIES ("transactional"="true"); --ORC事务表
+
+
+                                                                                                    
+DROP TABLE IF EXISTS GDM.BASE_CREDIT_CARD;
+CREATE TABLE GDM.BASE_CREDIT_CARD (
+   AccNo STRING COMMENT '账号'
+  ,CardNo STRING COMMENT '卡号'
+  ,HstCrd_No STRING COMMENT '主卡号'
+  ,Cst_No STRING COMMENT '客户号'
+  ,Acc_Nm STRING COMMENT '帐户名称'
+  ,Acc_Own_Crd_No STRING COMMENT '帐户拥有者证件号码'
+  ,Acc_St STRING COMMENT '账户状态'
+  ,CrdIsu_Inst STRING COMMENT '发卡机构'
+  ,TLmt DECIMAL(22,2) COMMENT '总额度'
+  ,Rglr_Od_Amt DECIMAL(22,2) COMMENT '正常透支额'
+  ,Odu_Od_Amt DECIMAL(22,2) COMMENT '逾期透支额'
+  ,Instm_Od_Amt DECIMAL(22,2) COMMENT '分期透支额'
+  ,OvflwPymt	DECIMAL(22,2) COMMENT '溢缴款'
+  ,CrdIsu_Dt	STRING COMMENT '发卡日期'
+  ,Actvt_Dt	STRING COMMENT '激活日期'
+  ,UUID STRING COMMENT 'UUID'
+)
+COMMENT '信用卡基础表'
+PARTITIONED BY (DATA_DT STRING)       --按照数据日期天分区
+CLUSTERED BY  (UUID)  INTO 3 BUCKETS  --分桶
+STORED AS ORC TBLPROPERTIES ("transactional"="true"); --ORC事务表
+
+
+
+DROP TABLE IF EXISTS GDM.BASE_DEP_CORP_ATTR;
+CREATE TABLE GDM.BASE_DEP_CORP_ATTR (
+   AccNo STRING COMMENT '账号'
+  ,AccNm STRING COMMENT '账户名称'
+  ,Cst_No STRING COMMENT '客户号'
+  ,Acc_Ccy STRING COMMENT '账户币种'
+  ,Acc_Dep_Trm STRING COMMENT '账户存款期限'
+  ,Dep_Exec_IntRt DECIMAL(22,7) COMMENT '存款执行利率'
+  ,Dep_Base_IntRt DECIMAL(22,7) COMMENT '存款基准利率'
+  ,Exp_Af_Exec_IntRt DECIMAL(22,7) COMMENT '到期后执行利率'
+  ,Acc_ExDy STRING COMMENT '账户到期日'
+  ,Lby_Pd_Tp STRING COMMENT '负债产品类型'
+  ,Pd_Blng_Obj STRING COMMENT '产品所属对象'
+  ,Pd_No STRING COMMENT '产品号'
+  ,Corp_Crn_Acc_Attr STRING COMMENT '对公活期户属性'
+  ,Acc_OpAcIns STRING COMMENT '账户开户机构'
+  ,Acc_OpnAcc_Day STRING COMMENT '账户开户日'
+  ,Acc_OpnAcc_Tlr STRING COMMENT '账户开户柜员'
+  ,Acc_CnclAcct_Inst STRING COMMENT '账户销户机构'
+  ,Acc_CnclAcct_Dt STRING COMMENT '账户销户日期'
+  ,Acc_CnclAcct_Tlr STRING COMMENT '账户销户柜员'
+  ,TfrDep_Mod STRING COMMENT '转存方式'
+  ,Init_ValDt STRING COMMENT '初始起息日期'
+  ,Init_ExDat STRING COMMENT '初始到期日期'
+  ,Prtfl_Pd_No STRING COMMENT '组合产品号'
+  ,Prtfl_Pd_SN STRING COMMENT '组合产品序号'
+  ,Prtfl_Pd_Mthr_Acc_No STRING COMMENT '组合产品母账户号'
+  ,Bal_Synz_Ind STRING COMMENT '余额与总账同步标志'
+  ,Wthr_Insp_Ind STRING COMMENT '是否核查标志'
+  ,Slp_StCD STRING COMMENT '睡眠状态代码'
+  ,Bal_Rctly_Udt_Dt STRING COMMENT '余额最近更新日期'
+  ,Dep_Cgy STRING COMMENT '存款种类'
+  ,Acc_St STRING COMMENT '帐户状态'
+  ,OpnAcc_Amt DECIMAL(22,2) COMMENT '开户金额'
+  ,Acc_Rst_Ind STRING COMMENT '账户限制标志'
+  ,AcAmt_Frz_Ind STRING COMMENT '账户金额冻结标志'
+  ,Acc_Clsd_Frz_Ind STRING COMMENT '账户封闭冻结标志'
+  ,Acc_OCNPm_Ind STRING COMMENT '账户只收不付标志'
+  ,Acc_OnlPyNCol_Ind STRING COMMENT '账户只付不收标志'
+  ,Acc_CLCD1 STRING COMMENT '账户分类代码1'
+  ,Acc_CLCD2 STRING COMMENT '账户分类代码2'
+  ,Acc_CLCD5 STRING COMMENT '账户分类代码5'
+  ,Wthr_BAt_Ind STRING COMMENT '是否结算账户标志'
+  ,Wthr_Mrgn_Dep STRING COMMENT '是否保证金存款'
+  ,Wthr_Fnc_Dep_Ind STRING COMMENT '是否财政存款标志'
+  ,Wthr_Sign_Chrtc_Ind STRING COMMENT '是否签约理财标志'
+  ,Wthr_AgrmDep_Ind STRING COMMENT '是否协定存款标志'
+  ,AgrmDep_Lyr_Amt DECIMAL(22,2) COMMENT '协定存款分层金额'
+  ,AgrmDep_Agrmt_IntRt DECIMAL(22,7) COMMENT '协定存款协定利率'
+  ,LstTm_Bsn_Dt	STRING COMMENT '上次业务日期'
+  ,LstTm_SbstRcvPy_Dt	STRING COMMENT '上次代收付日期'
+  ,UUID STRING COMMENT 'UUID'
+)
+COMMENT '对公存款属性表'
+PARTITIONED BY (DATA_DT STRING)       --按照数据日期天分区
+CLUSTERED BY  (UUID)  INTO 3 BUCKETS  --分桶
+STORED AS ORC TBLPROPERTIES ("transactional"="true"); --ORC事务表
+
+DROP TABLE IF EXISTS GDM.BASE_DEP_CORP_BAL;
+CREATE TABLE GDM.BASE_DEP_CORP_BAL (
+   AccNo STRING COMMENT '账号'
+  ,Cst_AccNo STRING	COMMENT '客户账号'
+  ,Cst_No STRING COMMENT '客户号'
+  ,Acc_Ccy STRING COMMENT '账户币种'
+  ,Acc_OpAcIns STRING COMMENT '账户开户机构'
+  ,Pd_No STRING COMMENT '产品号'
+  ,Sbj_No STRING COMMENT '科目号'
+  ,AccBal DECIMAL(22,2) COMMENT '账户余额'
+  ,UUID STRING COMMENT 'UUID'
+)
+COMMENT '对公存款基础表'
+PARTITIONED BY (DATA_DT STRING)       --按照数据日期天分区
+CLUSTERED BY  (UUID)  INTO 3 BUCKETS  --分桶
+STORED AS ORC TBLPROPERTIES ("transactional"="true"); --ORC事务表
+
+
+
+DROP TABLE IF EXISTS GDM.BASE_DEP_PRVT_ATTR;
+CREATE TABLE GDM.BASE_DEP_PRVT_ATTR (AccNo STRING COMMENT '账号'
+,AccNm STRING COMMENT '账户名称'
+,Cst_No STRING COMMENT '客户号'
+,Acc_Ccy STRING COMMENT '账户币种'
+,Acc_Dep_Trm STRING COMMENT '账户存款期限'
+,Dep_Exec_IntRt DECIMAL(22,7) COMMENT '存款执行利率'
+,Dep_Base_IntRt DECIMAL(22,7) COMMENT '存款基准利率'
+,Exp_Af_Exec_IntRt DECIMAL(22,7) COMMENT '到期后执行利率'
+,Acc_ExDy STRING COMMENT '账户到期日'
+,Lby_Pd_Tp STRING COMMENT '负债产品类型'
+,Pd_Blng_Obj STRING COMMENT '产品所属对象'
+,Pd_No STRING COMMENT '产品号'
+,Acc_OpAcIns STRING COMMENT '账户开户机构'
+,Acc_OpnAcc_Day STRING COMMENT '账户开户日'
+,Acc_OpnAcc_Tlr STRING COMMENT '账户开户柜员'
+,Acc_CnclAcct_Inst STRING COMMENT '账户销户机构'
+,Acc_CnclAcct_Dt STRING COMMENT '账户销户日期'
+,Acc_CnclAcct_Tlr STRING COMMENT '账户销户柜员'
+,TfrDep_Mod STRING COMMENT '转存方式'
+,Init_ValDt STRING COMMENT '初始起息日期'
+,Init_ExDat STRING COMMENT '初始到期日期'
+,Prtfl_Pd_No STRING COMMENT '组合产品号'
+,Prtfl_Pd_SN STRING COMMENT '组合产品序号'
+,Prtfl_Pd_Mthr_Acc_No STRING COMMENT '组合产品母账户号'
+,Bal_Synz_Ind STRING COMMENT '余额与总账同步标志'
+,Wthr_Insp_Ind STRING COMMENT '是否核查标志'
+,Slp_StCD STRING COMMENT '睡眠状态代码'
+,Bal_Rctly_Udt_Dt STRING COMMENT '余额最近更新日期'
+,Dep_Cgy STRING COMMENT '存款种类'
+,Acc_St STRING COMMENT '帐户状态'
+,OpnAcc_Amt DECIMAL(22,2) COMMENT '开户金额'
+,Acc_Rst_Ind STRING COMMENT '账户限制标志'
+,AcAmt_Frz_Ind STRING COMMENT '账户金额冻结标志'
+,Acc_Clsd_Frz_Ind STRING COMMENT '账户封闭冻结标志'
+,Acc_OCNPm_Ind STRING COMMENT '账户只收不付标志'
+,Acc_OnlPyNCol_Ind STRING COMMENT '账户只付不收标志'
+,Acc_CLCD1 STRING COMMENT '账户分类代码1'
+,Acc_CLCD2 STRING COMMENT '账户分类代码2'
+,Acc_CLCD5 STRING COMMENT '账户分类代码5'
+,Wthr_BAt_Ind STRING COMMENT '是否结算账户标志'
+,Wthr_Mrgn_Dep STRING COMMENT '是否保证金存款'
+,Wthr_Fnc_Dep_Ind STRING COMMENT '是否财政存款标志'
+,Wthr_Sign_Chrtc_Ind STRING COMMENT '是否签约理财标志'
+,Wthr_AgrmDep_Ind STRING COMMENT '是否协定存款标志'
+,AgrmDep_Lyr_Amt DECIMAL(22,2) COMMENT '协定存款分层金额'
+,AgrmDep_Agrmt_IntRt DECIMAL(22,7) COMMENT '协定存款协定利率'
+,LstTm_Bsn_Dt	STRING COMMENT '上次业务日期'
+,LstTm_SbstRcvPy_Dt	STRING COMMENT '上次代收付日期'
+,UUID STRING COMMENT 'UUID'
+)
+COMMENT '个人存款属性表'
+PARTITIONED BY (DATA_DT STRING)       --按照数据日期天分区
+CLUSTERED BY  (UUID)  INTO 3 BUCKETS  --分桶
+STORED AS ORC TBLPROPERTIES ("transactional"="true"); --ORC事务表
+
+
+
+DROP TABLE IF EXISTS GDM.BASE_DEP_PRVT_BAL;
+
+CREATE TABLE GDM.BASE_DEP_PRVT_BAL (
+ AccNo STRING COMMENT '账号'
+,Cst_AccNo STRING	COMMENT '客户账号'
+,Cst_No STRING COMMENT '客户号'
+,Acc_Ccy STRING COMMENT '账户币种'
+,Acc_OpAcIns STRING COMMENT '账户开户机构'
+,Pd_No STRING COMMENT '产品号'
+,Sbj_No STRING COMMENT '科目号'
+,AccBal DECIMAL(22,2) COMMENT '账户余额'
+,UUID STRING COMMENT 'UUID'
+)
+COMMENT '个人存款基础表'
+PARTITIONED BY (DATA_DT STRING)       --按照数据日期天分区
+CLUSTERED BY  (UUID)  INTO 3 BUCKETS  --分桶
+STORED AS ORC TBLPROPERTIES ("transactional"="true"); --ORC事务表
+
+
+
+DROP TABLE IF EXISTS GDM.BASE_FNC_ACCT;
+
+CREATE TABLE GDM.BASE_FNC_ACCT (Medm_No STRING COMMENT '介质号'
+,AccNm STRING COMMENT '账户名称'
+,Core_AccNo STRING COMMENT '核心账号'
+,Cst_No STRING COMMENT '客户号'
+,Cst_Tp STRING COMMENT '客户类型'
+,Cst_Lvl STRING COMMENT '客户级别'
+,Chrtc_Sale_Inst STRING COMMENT '理财销售机构'
+,Prch_Chnl STRING COMMENT '购买渠道'
+,Pd_No STRING COMMENT '产品号'
+,Sbj_No STRING COMMENT '科目号'
+,Prch_Amt DECIMAL(22,2) COMMENT '购买金额'
+,CBl DECIMAL(22,2) COMMENT '当前余额'
+,Sbsrb_StDt STRING COMMENT '认购起始日期'
+,Issu_Estb_Day STRING COMMENT '发行成立日'
+,Lqd_Dt STRING COMMENT '清盘日期'
+,Wthr_BrkEvn_Ind STRING COMMENT '是否保本标志'
+,Trm DECIMAL(22,0) COMMENT '期限'
+,Txn_Dt STRING COMMENT '交易日期'
+,Pft_Val DECIMAL(22,2) COMMENT '收益值'
+,UUID STRING COMMENT 'UUID'
+)
+COMMENT '理财基础表'
+PARTITIONED BY (DATA_DT STRING)       --按照数据日期天分区
+CLUSTERED BY  (UUID)  INTO 3 BUCKETS  --分桶
+STORED AS ORC TBLPROPERTIES ("transactional"="true"); --ORC事务表
+
+DROP TABLE IF EXISTS GDM.BASE_FNC_CUSTVL_TMP;
+
+CREATE TABLE GDM.BASE_FNC_CUSTVL_TMP (
+ Medm_No STRING COMMENT '介质号'
+,AccNm STRING COMMENT '账户名称'
+,Core_AccNo STRING COMMENT '核心账号'
+,Cst_No STRING COMMENT '客户号'
+,Cst_Tp STRING COMMENT '客户类型'
+,Cst_Lvl STRING COMMENT '客户级别'
+,Chrtc_Sale_Inst STRING COMMENT '理财销售机构'
+,Prch_Chnl STRING COMMENT '购买渠道'
+,Pd_No STRING COMMENT '产品号'
+,Sbj_No STRING COMMENT '科目号'
+,Prch_Amt DECIMAL(22,2) COMMENT '购买金额'
+,CBl DECIMAL(22,2) COMMENT '当前余额'
+,Sbsrb_StDt STRING COMMENT '认购起始日期'
+,Issu_Estb_Day STRING COMMENT '发行成立日'
+,Lqd_Dt STRING COMMENT '清盘日期'
+,Wthr_BrkEvn_Ind STRING COMMENT '是否保本标志'
+,Trm DECIMAL(22,0) COMMENT '期限'
+,Txn_Dt STRING COMMENT '交易日期'
+,Pft_Val DECIMAL(22,2) COMMENT '收益值'
+,UUID STRING COMMENT 'UUID'
+)
+COMMENT '临时客户份额明细表'
+CLUSTERED BY  (UUID)  INTO 3 BUCKETS  --分桶
+STORED AS ORC TBLPROPERTIES ("transactional"="true"); --ORC事务表
+
+DROP TABLE IF EXISTS GDM.BASE_FNC_ACCT_TMP;
+
+CREATE TABLE GDM.BASE_FNC_ACCT_TMP (Medm_No STRING COMMENT '介质号'
+,AccNm STRING COMMENT '账户名称'
+,Core_AccNo STRING COMMENT '核心账号'
+,Cst_No STRING COMMENT '客户号'
+,Cst_Tp STRING COMMENT '客户类型'
+,Cst_Lvl STRING COMMENT '客户级别'
+,Chrtc_Sale_Inst STRING COMMENT '理财销售机构'
+,Prch_Chnl STRING COMMENT '购买渠道'
+,Pd_No STRING COMMENT '产品号'
+,Sbj_No STRING COMMENT '科目号'
+,Prch_Amt DECIMAL(22,2) COMMENT '购买金额'
+,CBl DECIMAL(22,2) COMMENT '当前余额'
+,Sbsrb_StDt STRING COMMENT '认购起始日期'
+,Issu_Estb_Day STRING COMMENT '发行成立日'
+,Lqd_Dt STRING COMMENT '清盘日期'
+,Wthr_BrkEvn_Ind STRING COMMENT '是否保本标志'
+,Trm DECIMAL(22,0) COMMENT '期限'
+,Txn_Dt STRING COMMENT '交易日期'
+,Pft_Val DECIMAL(22,2) COMMENT '收益值'
+,UUID STRING COMMENT 'UUID'
+)
+COMMENT '理财基础表'
+CLUSTERED BY  (UUID)  INTO 3 BUCKETS  --分桶
+STORED AS ORC TBLPROPERTIES ("transactional"="true"); --ORC事务表
+
+
+
+DROP TABLE IF EXISTS GDM.BASE_GL_SUB;
+
+CREATE TABLE GDM.BASE_GL_SUB (InsNo STRING COMMENT '机构号'
+,Ccy STRING COMMENT '币种'
+,Sbj_No STRING COMMENT '科目号'
+,Sbj_Cntl_Chr STRING COMMENT '科目控制字'
+,Txn_Dt STRING COMMENT '交易日期'
+,Sbj_BalDrc STRING COMMENT '科目余额方向'
+,Wthr_LvlLast STRING COMMENT '是否末级'
+,Smy_Sbj_Cntl_Chr STRING COMMENT '汇总科目控制字'
+,Crn_Dbt_Bal DECIMAL(22,2) COMMENT '当前借方余额'
+,Crn_Cr_Bal DECIMAL(22,2) COMMENT '当前贷方余额'
+,YtrDy_Dbt_Bal DECIMAL(22,2) COMMENT '昨日借方余额'
+,YtrDy_Cr_Bal DECIMAL(22,2) COMMENT '昨日贷方余额'
+,ThsDy_Dbt_Dnum DECIMAL(22,0) COMMENT '本日借笔数'
+,ThsDy_Cr_Dnum DECIMAL(22,0) COMMENT '本日贷笔数'
+,ThsDy_Dbt_Amt DECIMAL(22,2) COMMENT '本日借发生额'
+,ThsDy_Cr_Amt DECIMAL(22,2) COMMENT '本日贷发生额'
+,ThsDy_Csh_Dbt_Dnum DECIMAL(22,0) COMMENT '本日现金借笔数'
+,ThsDy_Csh_Cr_Dnum DECIMAL(22,0) COMMENT '本日现金贷笔数'
+,ThsDy_Csh_Dbt_Amt DECIMAL(22,2) COMMENT '本日现金借发生额'
+,ThsDy_Csh_Cr_Amt DECIMAL(22,2) COMMENT '本日现金贷发生额'
+,BOTD_Dbt_Bal DECIMAL(22,2) COMMENT '旬初借方余额'
+,BOTD_Cr_Bal DECIMAL(22,2) COMMENT '旬初贷方余额'
+,ThTD_Dbt_Dnum DECIMAL(22,0) COMMENT '本旬借方笔数'
+,ThTD_Cr_Dnum DECIMAL(22,0) COMMENT '本旬贷方笔数'
+,ThTD_Dbt_Amt DECIMAL(22,2) COMMENT '本旬借方发生额'
+,ThTD_Cr_Amt DECIMAL(22,2) COMMENT '本旬贷方发生额'
+,BOM_Dbt_Bal DECIMAL(22,2) COMMENT '月初借余额'
+,BOM_Cr_Bal DECIMAL(22,2) COMMENT '月初贷余额'
+,ThMon_Dbt_Dnum DECIMAL(22,0) COMMENT '本月借笔数'
+,ThMon_Cr_Dnum DECIMAL(22,0) COMMENT '本月贷笔数'
+,ThMon_Dbt_Amt DECIMAL(22,2) COMMENT '本月借发生额'
+,ThMon_Cr_Amt DECIMAL(22,2) COMMENT '本月贷发生额'
+,BOQ_Dbt_Bal DECIMAL(22,2) COMMENT '季初借余额'
+,BOQ_Cr_Bal DECIMAL(22,2) COMMENT '季初贷余额'
+,ThQrt_Dbt_Dnum DECIMAL(22,0) COMMENT '本季借笔数'
+,ThQrt_Cr_Dnum DECIMAL(22,0) COMMENT '本季贷笔数'
+,ThQrt_Dbt_Amt DECIMAL(22,2) COMMENT '本季借发生额'
+,ThQrt_Cr_Amt DECIMAL(22,2) COMMENT '本季贷发生额'
+,BOY_Dbt_Bal DECIMAL(22,2) COMMENT '年初借余额'
+,BOY_Cr_Bal DECIMAL(22,2) COMMENT '年初贷余额'
+,ThsYr_Dbt_Dnum DECIMAL(22,0) COMMENT '本年借笔数'
+,ThsYr_Cr_Dnum DECIMAL(22,0) COMMENT '本年贷笔数'
+,ThsYr_Dbt_Amt DECIMAL(22,2) COMMENT '本年借发生额'
+,ThsYr_Cr_Amt DECIMAL(22,2) COMMENT '本年贷发生额'
+,ThMon_EOM_Dbt_Bal DECIMAL(22,2) COMMENT '本月月末借余额'
+,ThMon_EOM_Cr_Bal DECIMAL(22,2) COMMENT '本月月末贷余额'
+,UUID STRING COMMENT 'UUID'
+)
+COMMENT '总账基础表'
+PARTITIONED BY (DATA_DT STRING)       --按照数据日期天分区
+CLUSTERED BY  (UUID)  INTO 3 BUCKETS  --分桶
+STORED AS ORC TBLPROPERTIES ("transactional"="true"); --ORC事务表
+
+DROP TABLE IF EXISTS GDM.BASE_INST_TMP;
+
+CREATE TABLE GDM.BASE_INST_TMP (
+ InsNo STRING COMMENT '机构号'
+,Inst_Nm STRING COMMENT '机构名称'
+,Wthr_OpInst STRING COMMENT	'是否营业机构'
+,WTHR_FNSTG_INST STRING COMMENT '是否叶子节点'
+,Supr_InsNo STRING COMMENT '上级机构号'
+,Inst_St STRING COMMENT '机构状态'
+,DtSrc STRING COMMENT '数据来源'
+,UUID STRING COMMENT 'UUID'
+)
+COMMENT '机构基础临时表'
+CLUSTERED BY  (UUID)  INTO 3 BUCKETS  --分桶
+STORED AS ORC TBLPROPERTIES ("transactional"="true"); --ORC事务表
+
+DROP TABLE IF EXISTS GDM.BASE_INST;
+
+CREATE TABLE GDM.BASE_INST (InsNo STRING COMMENT '机构号'
+,Inst_Nm STRING COMMENT '机构名称'
+,Inst_Hier STRING COMMENT '机构层级'
+,Wthr_OpInst STRING COMMENT	'是否营业机构'
+,WTHR_FNSTG_INST STRING COMMENT '是否叶子节点'
+,Supr_InsNo STRING COMMENT '上级机构号'
+,Inst_St STRING COMMENT '机构状态'
+,DtSrc STRING COMMENT '数据来源'
+,UUID STRING COMMENT 'UUID'
+)
+COMMENT '机构基础表'
+PARTITIONED BY (DATA_DT STRING)       --按照数据日期天分区
+CLUSTERED BY  (UUID)  INTO 3 BUCKETS  --分桶
+STORED AS ORC TBLPROPERTIES ("transactional"="true"); --ORC事务表
+
+
+
+DROP TABLE IF EXISTS GDM.BASE_LN_IN_ATTR;
+
+CREATE TABLE GDM.BASE_LN_IN_ATTR (AccNo STRING COMMENT '账号'
+,RAL_No STRING COMMENT '借据号'
+,Ctr_No STRING COMMENT '合同号'
+,Cst_No STRING COMMENT '客户号'
+,Hpn_Mod STRING COMMENT '发生方式'
+,Cptl_Char STRING COMMENT '资金性质'
+,SpecCptl_Tp STRING COMMENT '专项资金类型'
+,Man_Acc_Mgr STRING COMMENT '管户经理'
+,Man_Acc_Mgr_Nm STRING COMMENT '管户经理名'
+,Man_Acc_Inst STRING COMMENT '管户机构'
+,Man_Acc_Inst_Nm STRING COMMENT '管户机构名称'
+,AccEntr_Inst STRING COMMENT '入账机构'
+,AccEntr_Inst_Nm STRING COMMENT '入账机构名称'
+,Rgs_Inst STRING COMMENT '登记机构'
+,Rgs_Inst_Nm STRING COMMENT '登记机构名称'
+,Cst_Tp STRING COMMENT '客户类型'
+,Cst_Tp_SubDiv STRING COMMENT '客户类型细分'
+,Bsn_Vrty_Tp STRING COMMENT '业务品种类型'
+,Sbj_No STRING COMMENT '科目号'
+,Pd_No STRING COMMENT '产品号'
+,Pd_Nm STRING COMMENT '产品名称'
+,sub_Pd STRING COMMENT '子产品'
+,Core_Pd_No STRING COMMENT '核心产品号'
+,Ctr_Tp STRING COMMENT '合同类型'
+,BgDy STRING COMMENT '起始日'
+,ExDy STRING COMMENT '到期日'
+,Trm_Mo DECIMAL(22,0) COMMENT '期限月'
+,Trm_Tp STRING COMMENT '期限类型'
+,Base_IntRt DECIMAL(22,7) COMMENT '基准利率'
+,IntRt_Flt DECIMAL(22,7) COMMENT '利率浮动'
+,LnIntRt DECIMAL(22,7) COMMENT '贷款利率'
+,Flt_Tp STRING COMMENT '浮动类型'
+,GrtStl STRING COMMENT '担保方式'
+,Prtfl_GrtStl STRING COMMENT '组合担保方式'
+,IntAr_Mod STRING COMMENT '计息方式'
+,RpMd STRING COMMENT '还款方式'
+,Exn_Cnt STRING COMMENT '展期次数'
+,Exn_BgDy STRING COMMENT '展期起始日'
+,Exn_ExDy STRING COMMENT '展期到期日'
+,Exn_IntRt STRING COMMENT '展期利率'
+,Ln_Use STRING COMMENT '贷款用途'
+,Ln_Use_Nm STRING COMMENT '贷款用途名称'
+,Ln_Use_Dtl STRING COMMENT '贷款用途明细'
+,PyMd STRING COMMENT '支付方式'
+,Repy_AccNo STRING COMMENT '还款账号'
+,Wthr_Br_Frm STRING COMMENT '是否支农'
+,Wthr_Micr_PstHsd_Ln STRING COMMENT '是否小额农户贷款'
+,RlEst_Lncgy_Tp STRING COMMENT '房地产贷款类型'
+,Halal_Idy_Tp STRING COMMENT '清真产业类型'
+,Frm_Ln_Use STRING COMMENT '涉农贷款用途'
+,Wthr_SsOnInt STRING COMMENT '是否贴息'
+,ItrSbsPty_Way STRING COMMENT '贴息方式'
+,CoPj_StdgBook_ID STRING COMMENT '合作项目台账编号'
+,CoPj_Tp STRING COMMENT '合作项目类型'
+,CoPj_ID STRING COMMENT '合作项目编号'
+,CoPj_Nm STRING COMMENT '合作项目名称'
+,Grp_ID STRING COMMENT '集团编号'
+,Grp_Nm STRING COMMENT '集团名称'
+,Etrs_Agrm_No STRING COMMENT '委托协议号'
+,LnBal DECIMAL(22,2) COMMENT '贷款余额'
+,RAL_St STRING COMMENT '借据状态'
+,CrGrd STRING COMMENT '信用等级'
+,Ctc_Tel STRING COMMENT '联系电话'
+,Comm_Adr STRING COMMENT '通讯地址'
+,Wthr_PstHsd STRING COMMENT '是否农户'
+,ADiv STRING COMMENT '行政区划'
+,ADiv_Nm STRING COMMENT '行政区划名称'
+,Admn_Vlg STRING COMMENT '行政村'
+,Pvty_St STRING COMMENT '贫困状态'
+,Oprt_Acc_Tp STRING COMMENT '经营户类型'
+,Cst_Rgs_Tp STRING COMMENT '客户登记类型'
+,Entp_Sz STRING COMMENT '企业规模'
+,Ln_Ln_IvsIn_Idy STRING COMMENT '贷款贷款投向行业'
+,Cst_Blg_Idy STRING COMMENT '客户归属行业'
+,Cst_Blg_Idy_Nm STRING COMMENT '客户归属行业名称'
+,Frm_Org_Tp STRING COMMENT '涉农组织类型'
+,New_Tp_Agrct_OpSbj STRING COMMENT '新型农业经营主体'
+,Wthr_SptPoor_Entp STRING COMMENT '是否扶贫带动企业'
+,SptPoor_PNum STRING COMMENT '扶贫带动人数'
+,Wthr_Shrh STRING COMMENT '是否股东'
+,Lvl4_St STRING COMMENT '四级状态'
+,Lvl5_St STRING COMMENT '五级状态'
+,OnBalShet_RecInt DECIMAL(22,2) COMMENT '表内应收利息'
+,OffBalShet_RecInt DECIMAL(22,2) COMMENT '表外应收利息'
+,Wthr_StInt STRING COMMENT '是否停息'
+,CnclAftVerf_Pnp DECIMAL(22,2) COMMENT '核销本金'
+,CnclAftVerf_Int DECIMAL(22,2) COMMENT '核销利息'
+,CnclAftVerf_Dt STRING COMMENT '核销日期'
+,Wthr_Tax_CnclAftVerf STRING COMMENT '是否税前核销'
+,Wtdrw_Pnp DECIMAL(22,2) COMMENT '收回本金'
+,Wtdrw_Int DECIMAL(22,2) COMMENT '收回利息'
+,Rplcmt_Pnp DECIMAL(22,2) COMMENT '置换本金'
+,Rplcmt_Int DECIMAL(22,2) COMMENT '置换利息'
+,Rcvb_ArIt DECIMAL(22,2) COMMENT '应收应计利息'
+,Coll_ArIt DECIMAL(22,2) COMMENT '催收应计利息'
+,Rcvb_OwInt DECIMAL(22,2) COMMENT '应收欠息'
+,Coll_OwInt DECIMAL(22,2) COMMENT '催收欠息'
+,Rcvb_Acr_PnyInt DECIMAL(22,2) COMMENT '应收应计罚息'
+,Coll_Acr_PnyInt DECIMAL(22,2) COMMENT '催收应计罚息'
+,Rcvb_PnyInt DECIMAL(22,2) COMMENT '应收罚息'
+,Coll_PnyInt DECIMAL(22,2) COMMENT '催收罚息'
+,Acr_CpInt DECIMAL(22,2) COMMENT '应计复息'
+,CpInt DECIMAL(22,2) COMMENT '复息'
+,Acr_SsOnInt DECIMAL(22,2) COMMENT '应计贴息'
+,Rcvb_SsOnInt DECIMAL(22,2) COMMENT '应收贴息'
+,Odu_Dys DECIMAL(22,0) COMMENT '逾期天数'
+,Int_Odu_Dys DECIMAL(22,0) COMMENT '利息逾期天数'
+,Cls_Dt STRING COMMENT '结清日期'
+,Wthr_Tax STRING COMMENT '是否计税'
+,BillNo STRING COMMENT '票号'
+,Rmtr_Nm STRING COMMENT '出票人名称'
+,Rmtr_AccNo STRING COMMENT '出票人账号'
+,Acpt_Bnk STRING COMMENT '承兑银行'
+,Acpt_Bnk_BrNo STRING COMMENT '承兑行行号'
+,Acpt_Bnk_Adr STRING COMMENT '承兑银行地址'
+,IssuOfPpr_Day STRING COMMENT '出票日'
+,Dsct_Dt STRING COMMENT '贴现日期'
+,Itrt_Dys DECIMAL(22,0) COMMENT '在途天数'
+,Dsct_IntRt DECIMAL(22,7) COMMENT '贴现利率'
+,RcvPymtPs STRING COMMENT '收款人'
+,RcvPymtPs_AccNo STRING COMMENT '收款人账号'
+,RcvPymtPs_BkNm STRING COMMENT '收款人行名'
+,BilTp STRING COMMENT '票据类型'
+,BsTp STRING COMMENT '业务类型'
+,UUID STRING COMMENT 'UUID'
+)
+COMMENT '表内贷款属性表'
+PARTITIONED BY (DATA_DT STRING)       --按照数据日期天分区
+CLUSTERED BY  (UUID)  INTO 3 BUCKETS  --分桶
+STORED AS ORC TBLPROPERTIES ("transactional"="true"); --ORC事务表
+
+
+
+DROP TABLE IF EXISTS GDM.BASE_LN_IN_BAL;
+
+CREATE TABLE GDM.BASE_LN_IN_BAL (AccNo STRING COMMENT '账号'
+,RAL_No STRING COMMENT '借据号'
+,Ctr_No STRING COMMENT '合同号'
+,Cst_No STRING COMMENT '客户号'
+,Man_Acc_Inst STRING COMMENT '管户机构'
+,AccEntr_Inst STRING COMMENT '入账机构'
+,Sbj_No STRING COMMENT '科目号'
+,Pd_No STRING COMMENT '产品号'
+,Bsn_Vrty_Tp	STRING COMMENT '业务品种类型'
+,Ral_St	STRING COMMENT '借据状态'
+,Ctr_Amt DECIMAL(22,2) COMMENT '合同金额'
+,RAL_Amt DECIMAL(22,2) COMMENT '借据金额'
+,LnBal DECIMAL(22,2) COMMENT '贷款余额'
+,Rglr_Pnp DECIMAL(22,2) COMMENT '正常本金'
+,OduPp DECIMAL(22,2) COMMENT '逾期本金'
+,OnBalShet_OwInt DECIMAL(22,2) COMMENT '表内欠息'
+,OffBalShet_OwInt DECIMAL(22,2) COMMENT '表外欠息'
+,OnBalShet_PnyInt DECIMAL(22,2) COMMENT '表内罚息'
+,OffBalShet_PnyInt DECIMAL(22,2) COMMENT '表外罚息'
+,Dsct_IntIcm DECIMAL(22,2) COMMENT '贴现利息收入'
+,Dsct_ActPy_Amt DECIMAL(22,2) COMMENT '贴现实付金额'
+,UUID STRING COMMENT 'UUID'
+)
+COMMENT '表内贷款基础表'
+PARTITIONED BY (DATA_DT STRING)       --按照数据日期天分区
+CLUSTERED BY  (UUID)  INTO 3 BUCKETS  --分桶
+STORED AS ORC TBLPROPERTIES ("transactional"="true"); --ORC事务表
+
+
+
+DROP TABLE IF EXISTS GDM.BASE_LN_OUT_ATTR;
+
+CREATE TABLE GDM.BASE_LN_OUT_ATTR (AccNo STRING COMMENT '账号'
+,RAL_No STRING COMMENT '借据号'
+,Ctr_No STRING COMMENT '合同号'
+,Cst_No STRING COMMENT '客户号'
+,Hpn_Mod STRING COMMENT '发生方式'
+,Cptl_Char STRING COMMENT '资金性质'
+,SpecCptl_Tp STRING COMMENT '专项资金类型'
+,Man_Acc_Mgr STRING COMMENT '管户经理'
+,Man_Acc_Mgr_Nm STRING COMMENT '管户经理名'
+,Man_Acc_Inst STRING COMMENT '管户机构'
+,Man_Acc_Inst_Nm STRING COMMENT '管户机构名称'
+,AccEntr_Inst STRING COMMENT '入账机构'
+,AccEntr_Inst_Nm STRING COMMENT '入账机构名称'
+,Rgs_Inst STRING COMMENT '登记机构'
+,Rgs_Inst_Nm STRING COMMENT '登记机构名称'
+,Cst_Tp STRING COMMENT '客户类型'
+,Cst_Tp_SubDiv STRING COMMENT '客户类型细分'
+,Bsn_Vrty_Tp STRING COMMENT '业务品种类型'
+,Sbj_No STRING COMMENT '科目号'
+,Pd_No STRING COMMENT '产品号'
+,Pd_Nm STRING COMMENT '产品名称'
+,sub_Pd STRING COMMENT '子产品'
+,Core_Pd_No STRING COMMENT '核心产品号'
+,Ctr_Tp STRING COMMENT '合同类型'
+,BgDy STRING COMMENT '起始日'
+,ExDy STRING COMMENT '到期日'
+,Trm_Mo DECIMAL(22,0) COMMENT '期限月'
+,Trm_Tp STRING COMMENT '期限类型'
+,Base_IntRt DECIMAL(22,7) COMMENT '基准利率'
+,IntRt_Flt DECIMAL(22,7) COMMENT '利率浮动'
+,LnIntRt DECIMAL(22,7) COMMENT '贷款利率'
+,Flt_Tp STRING COMMENT '浮动类型'
+,GrtStl STRING COMMENT '担保方式'
+,Prtfl_GrtStl STRING COMMENT '组合担保方式'
+,IntAr_Mod STRING COMMENT '计息方式'
+,RpMd STRING COMMENT '还款方式'
+,Exn_Cnt DECIMAL(22,0) COMMENT '展期次数'
+,Exn_BgDy STRING COMMENT '展期起始日'
+,Exn_ExDy STRING COMMENT '展期到期日'
+,Exn_IntRt DECIMAL(22,7) COMMENT '展期利率'
+,Ln_Use STRING COMMENT '贷款用途'
+,Ln_Use_Nm STRING COMMENT '贷款用途名称'
+,Ln_Use_Dtl STRING COMMENT '贷款用途明细'
+,PyMd STRING COMMENT '支付方式'
+,Repy_AccNo STRING COMMENT '还款账号'
+,Wthr_Br_Frm STRING COMMENT '是否支农'
+,Wthr_Micr_PstHsd_Ln STRING COMMENT '是否小额农户贷款'
+,RlEst_Lncgy_Tp STRING COMMENT '房地产贷款类型'
+,Halal_Idy_Tp STRING COMMENT '清真产业类型'
+,Frm_Ln_Use STRING COMMENT '涉农贷款用途'
+,Wthr_SsOnInt STRING COMMENT '是否贴息'
+,ItrSbsPty_Way STRING COMMENT '贴息方式'
+,CoPj_StdgBook_ID STRING COMMENT '合作项目台账编号'
+,CoPj_Tp STRING COMMENT '合作项目类型'
+,CoPj_ID STRING COMMENT '合作项目编号'
+,CoPj_Nm STRING COMMENT '合作项目名称'
+,Grp_ID STRING COMMENT '集团编号'
+,Grp_Nm STRING COMMENT '集团名称'
+,Etrs_Agrm_No STRING COMMENT '委托协议号'
+,LnBal DECIMAL(22,2) COMMENT '贷款余额'
+,RAL_St STRING COMMENT '借据状态'
+,CrGrd STRING COMMENT '信用等级'
+,Ctc_Tel STRING COMMENT '联系电话'
+,Comm_Adr STRING COMMENT '通讯地址'
+,Wthr_PstHsd STRING COMMENT '是否农户'
+,ADiv STRING COMMENT '行政区划'
+,ADiv_Nm STRING COMMENT '行政区划名称'
+,Admn_Vlg STRING COMMENT '行政村'
+,Pvty_St STRING COMMENT '贫困状态'
+,Oprt_Acc_Tp STRING COMMENT '经营户类型'
+,Cst_Rgs_Tp STRING COMMENT '客户登记类型'
+,Entp_Sz STRING COMMENT '企业规模'
+,Ln_IvsIn_Idy STRING COMMENT '贷款投向行业'
+,Cst_Blg_Idy STRING COMMENT '客户归属行业'
+,Cst_Blg_Idy_Nm STRING COMMENT '客户归属行业名称'
+,Frm_Org_Tp STRING COMMENT '涉农组织类型'
+,New_Tp_Agrct_OpSbj STRING COMMENT '新型农业经营主体'
+,Wthr_SptPoor_Entp STRING COMMENT '是否扶贫带动企业'
+,SptPoor_PNum DECIMAL(22,0) COMMENT '扶贫带动人数'
+,Wthr_Shrh STRING COMMENT '是否股东'
+,Lvl4_St STRING COMMENT '四级状态'
+,Lvl5_St STRING COMMENT '五级状态'
+,OnBalShet_RecInt DECIMAL(22,2) COMMENT '表内应收利息'
+,OffBalShet_RecInt DECIMAL(22,2) COMMENT '表外应收利息'
+,Wthr_StInt STRING COMMENT '是否停息'
+,CnclAftVerf_Pnp DECIMAL(22,2) COMMENT '核销本金'
+,CnclAftVerf_Int DECIMAL(22,2) COMMENT '核销利息'
+,CnclAftVerf_Dt STRING COMMENT '核销日期'
+,Wthr_Tax_CnclAftVerf STRING COMMENT '是否税前核销'
+,Wtdrw_Pnp DECIMAL(22,2) COMMENT '收回本金'
+,Wtdrw_Int DECIMAL(22,2) COMMENT '收回利息'
+,Rplcmt_Pnp DECIMAL(22,2) COMMENT '置换本金'
+,Rplcmt_Int DECIMAL(22,2) COMMENT '置换利息'
+,Rcvb_ArIt DECIMAL(22,2) COMMENT '应收应计利息'
+,Coll_ArIt DECIMAL(22,2) COMMENT '催收应计利息'
+,Rcvb_OwInt DECIMAL(22,2) COMMENT '应收欠息'
+,Coll_OwInt DECIMAL(22,2) COMMENT '催收欠息'
+,Rcvb_Acr_PnyInt DECIMAL(22,2) COMMENT '应收应计罚息'
+,Coll_Acr_PnyInt DECIMAL(22,2) COMMENT '催收应计罚息'
+,Rcvb_PnyInt DECIMAL(22,2) COMMENT '应收罚息'
+,Coll_PnyInt DECIMAL(22,2) COMMENT '催收罚息'
+,Acr_CpInt DECIMAL(22,2) COMMENT '应计复息'
+,CpInt DECIMAL(22,2) COMMENT '复息'
+,Acr_SsOnInt DECIMAL(22,2) COMMENT '应计贴息'
+,Rcvb_SsOnInt DECIMAL(22,2) COMMENT '应收贴息'
+,Odu_Dys DECIMAL(22,0) COMMENT '逾期天数'
+,Int_Odu_Dys DECIMAL(22,0) COMMENT '利息逾期天数'
+,Cls_Dt STRING COMMENT '结清日期'
+,Wthr_Tax STRING COMMENT '是否计税'
+,Bill_Amt DECIMAL(22,2) COMMENT '票据金额'
+,CmsnChrgRt DECIMAL(22,7) COMMENT '手续费费率'
+,CmsnChrg_Amt DECIMAL(22,2) COMMENT '手续费金额'
+,Mrgn_ProP DECIMAL(22,7) COMMENT '保证金比例'
+,Rsk_Esr DECIMAL(22,2) COMMENT '风险敞口'
+,BilTp STRING COMMENT '票据类型'
+,RcvPymtPs_Cst_No STRING COMMENT '收款人客户号'
+,RcvPymtPs_Nm STRING COMMENT '收款人姓名'
+,RcvPymtPs_AccNo STRING COMMENT '收款人账号'
+,RcvBnk_BkNm STRING COMMENT '收款行行名'
+,RcvBnk_BrNo STRING COMMENT '收款行行号'
+,Bill_St STRING COMMENT '票据状态'
+,DrftBill_No STRING COMMENT '汇票号码'
+,Rmtr STRING COMMENT '出票人'
+,Rmtr_AccNo STRING COMMENT '出票人账号'
+,Rmtr_DepBnk STRING COMMENT '出票人开户银行'
+,LGnt_Benf_Adr STRING COMMENT '保函受益人地址'
+,UUID STRING COMMENT 'UUID'
+)
+COMMENT '表外贷款属性表'
+PARTITIONED BY (DATA_DT STRING)       --按照数据日期天分区
+CLUSTERED BY  (UUID)  INTO 3 BUCKETS  --分桶
+STORED AS ORC TBLPROPERTIES ("transactional"="true"); --ORC事务表
+
+
+
+DROP TABLE IF EXISTS GDM.BASE_LN_OUT_BAL;
+
+CREATE TABLE GDM.BASE_LN_OUT_BAL (AccNo STRING COMMENT '账号'
+,RAL_No STRING COMMENT '借据号'
+,Ctr_No STRING COMMENT '合同号'
+,Cst_No STRING COMMENT '客户号'
+,Man_Acc_Inst STRING COMMENT '管户机构'
+,AccEntr_Inst STRING COMMENT '入账机构'
+,Sbj_No STRING COMMENT '科目号'
+,Pd_No STRING COMMENT '产品号'
+,Bsn_Vrty_Tp	STRING COMMENT '业务品种类型'
+,Ral_St	STRING COMMENT '借据状态'
+,Ctr_Amt DECIMAL(22,2) COMMENT '合同金额'
+,RAL_Amt DECIMAL(22,2) COMMENT '借据金额'
+,LnBal DECIMAL(22,2) COMMENT '贷款余额'
+,Rglr_Pnp DECIMAL(22,2) COMMENT '正常本金'
+,OduPp DECIMAL(22,2) COMMENT '逾期本金'
+,OnBalShet_OwInt DECIMAL(22,2) COMMENT '表内欠息'
+,OffBalShet_OwInt DECIMAL(22,2) COMMENT '表外欠息'
+,OnBalShet_PnyInt DECIMAL(22,2) COMMENT '表内罚息'
+,OffBalShet_PnyInt DECIMAL(22,2) COMMENT '表外罚息'
+,Bill_Amt DECIMAL(22,2) COMMENT '票据金额'
+,LGnt_CmsnChrg DECIMAL(22,2) COMMENT '保函手续费'
+,UUID STRING COMMENT 'UUID'
+)
+COMMENT '表外贷款基础表'
+PARTITIONED BY (DATA_DT STRING)       --按照数据日期天分区
+CLUSTERED BY  (UUID)  INTO 3 BUCKETS  --分桶
+STORED AS ORC TBLPROPERTIES ("transactional"="true"); --ORC事务表
+
+DROP TABLE IF EXISTS GDM.BASE_SBJ;
+
+CREATE TABLE GDM.BASE_SBJ (Sbj_No STRING COMMENT '科目号'
+,Sbj_Nm STRING COMMENT '科目名称'
+,Sbj_Hier STRING COMMENT '科目层级'
+,Wthr_Fnstg STRING COMMENT '是否末级'
+,Supr_Sbj_No STRING COMMENT '上级科目号'
+,DtSrc STRING COMMENT '数据来源'
+,UUID STRING COMMENT 'UUID'
+)
+COMMENT '科目基础表'
+PARTITIONED BY (DATA_DT STRING)       --按照数据日期天分区
+CLUSTERED BY  (UUID)  INTO 3 BUCKETS  --分桶
+STORED AS ORC TBLPROPERTIES ("transactional"="true"); --ORC事务表
+
+
+
+DROP TABLE IF EXISTS GDM.BASE_TRANS_ACCT;
+
+CREATE TABLE GDM.BASE_TRANS_ACCT (Txn_Core_AccNo STRING COMMENT '交易核心账号'
+,Cst_No STRING COMMENT '客户号'
+,Cst_Nm STRING COMMENT '客户名'
+,Txn_Dt STRING COMMENT '交易日期'
+,Txn_Tm STRING COMMENT '交易时间'
+,TxnSrlNo STRING COMMENT '交易流水号'
+,Dtl_SN STRING COMMENT '明细序号'
+,Txn_Medm_No STRING COMMENT '交易介质号'
+,OpAcIns STRING COMMENT '开户机构'
+,Txn_Inst STRING COMMENT '交易机构'
+,Ext_Txn_CD STRING COMMENT '外部交易码'
+,Inr_Txn_CD STRING COMMENT '内部交易码'
+,Inr_Txn_Nm	STRING COMMENT '内部交易名称'
+,TnCcy STRING COMMENT '交易币种'
+,Amt DECIMAL(22,2) COMMENT '发生额'
+,Bal DECIMAL(22,2) COMMENT '余额'
+,Cshex_ID STRING COMMENT '现转标识'
+,DbtCr_ID STRING COMMENT '增减或借贷标识'
+,Txn_Tlr STRING COMMENT '交易柜员'
+,RvwAudr STRING COMMENT '复核员'
+,Ahn_Psn STRING COMMENT '授权员'
+,Tlr_TrcNo STRING COMMENT '柜员流水号'
+,Cntrprt_Cst_AccNo STRING COMMENT '对方客户账号'
+,Cntrprt_Lby_Stm_AccNo STRING COMMENT '对方负债系统账号'
+,CntprtAcNm STRING COMMENT '对方户名'
+,Cntrprt_Cst_Tp STRING COMMENT '对方客户类型'
+,Cntrprt_FnInst_Nm STRING COMMENT '对方金融机构名称'
+,Cntrprt_FnInst_Tp STRING COMMENT '对方金融机构类型'
+,Cntrprt_FnInst_CD STRING COMMENT '对方金融机构代码'
+,Smy_CD STRING COMMENT '摘要代码'
+,Smy_Desc STRING COMMENT '摘要描述'
+,Rmrk STRING COMMENT '备注'
+,TxCh_NrEnd STRING COMMENT '交易渠道近端'
+,Chnl_Src STRING COMMENT '渠道来源'
+,Vchr_Cgy STRING COMMENT '凭证种类'
+,Vchr_Btch_No STRING COMMENT '凭证批号'
+,Vchr_SN STRING COMMENT '凭证序号'
+,Rvs_Ind STRING COMMENT '冲正标志'
+,By_Rvs_Ind STRING COMMENT '被冲正标志'
+,DtSrc STRING COMMENT '数据来源'
+,Bsn_Nm	STRING COMMENT '业务名称'
+,Rsrv_Fld1 STRING COMMENT '备用字段1'
+,Rsrv_Fld2 STRING COMMENT '备用字段2'
+,Rsrv_Fld3 STRING COMMENT '备用字段3'
+,UUID STRING COMMENT 'UUID'
+)
+COMMENT '账务类交易基础表'
+PARTITIONED BY (DATA_DT STRING)       --按照数据日期天分区
+CLUSTERED BY  (UUID)  INTO 29 BUCKETS  --分桶
+STORED AS ORC TBLPROPERTIES ("transactional"="true"); --ORC事务表
+
+
+
+DROP TABLE IF EXISTS GDM.BASE_TRANS_NON_ACCT;
+
+CREATE TABLE GDM.BASE_TRANS_NON_ACCT (Txn_Core_AccNo STRING COMMENT '交易核心账号'
+,Cst_No STRING COMMENT '客户号'
+,Cst_Nm STRING COMMENT '客户名'
+,Txn_Dt STRING COMMENT '交易日期'
+,Txn_Tm STRING COMMENT '交易时间'
+,TxnSrlNo STRING COMMENT '交易流水号'
+,Dtl_SN STRING COMMENT '明细序号'
+,Txn_Medm_No STRING COMMENT '交易介质号'
+,OpAcIns STRING COMMENT '开户机构'
+,Txn_Inst STRING COMMENT '交易机构'
+,Ext_Txn_CD STRING COMMENT '外部交易码'
+,Inr_Txn_CD STRING COMMENT '内部交易码'
+,Inr_Txn_Nm	STRING COMMENT '内部交易名称'
+,Amt DECIMAL(22,2) COMMENT '发生额'
+,Txn_Tlr STRING COMMENT '交易柜员'
+,RvwAudr STRING COMMENT '复核员'
+,Ahn_Psn STRING COMMENT '授权员'
+,Tlr_TrcNo STRING COMMENT '柜员流水号'
+,Smy_CD STRING COMMENT '摘要代码'
+,Smy_Desc STRING COMMENT '摘要描述'
+,Rmrk STRING COMMENT '备注'
+,TxCh_NrEnd STRING COMMENT '交易渠道近端'
+,Chnl_Src STRING COMMENT '渠道来源'
+,Vchr_Cgy STRING COMMENT '凭证种类'
+,Vchr_Btch_No STRING COMMENT '凭证批号'
+,Vchr_SN STRING COMMENT '凭证序号'
+,DtSrc STRING COMMENT '数据来源'
+,Bsn_Nm	STRING COMMENT '业务名称'
+,Rsrv_Fld1 STRING COMMENT '备用字段1'
+,Rsrv_Fld2 STRING COMMENT '备用字段2'
+,Rsrv_Fld3 STRING COMMENT '备用字段3'
+,Rsrv_Fld4 STRING COMMENT '备用字段4'
+,Rsrv_Fld5 STRING COMMENT '备用字段5'
+,Rsrv_Fld6 STRING COMMENT '备用字段6'
+,UUID STRING COMMENT 'UUID'
+)
+COMMENT '非账务类交易基础表'
+PARTITIONED BY (DATA_DT STRING)       --按照数据日期天分区
+CLUSTERED BY  (UUID)  INTO 29 BUCKETS  --分桶
+STORED AS ORC TBLPROPERTIES ("transactional"="true"); --ORC事务表
+
+
+
+DROP TABLE IF EXISTS GDM.CUST02000001;
+
+CREATE TABLE GDM.CUST02000001 (Cst_No STRING COMMENT '客户号'
+,Ind_Tp STRING COMMENT '指标类型'
+,Ind_Val DECIMAL(22,2) COMMENT '指标值'
+,Inst STRING COMMENT '机构'
+,Sbj_No STRING COMMENT '科目号'
+,UUID STRING COMMENT 'UUID'
+)
+COMMENT '客户级_机构_科目'
+PARTITIONED BY (DATA_DT STRING)       --按照数据日期天分区
+CLUSTERED BY  (UUID)  INTO 3 BUCKETS  --分桶
+STORED AS ORC TBLPROPERTIES ("transactional"="true"); --ORC事务表
+
+
+
+DROP TABLE IF EXISTS GDM.CUST03000001;
+
+CREATE TABLE GDM.CUST03000001 (Cst_No STRING COMMENT '客户号'
+,Ind_Tp STRING COMMENT '指标类型'
+,Ind_Val DECIMAL(22,2) COMMENT '指标值'
+,Inst STRING COMMENT '机构'
+,Medm_Cgy STRING COMMENT '介质种类'
+,Medm_St STRING COMMENT '介质状态'
+,UUID STRING COMMENT 'UUID'
+)
+COMMENT '客户级_机构_介质种类_介质状态'
+PARTITIONED BY (DATA_DT STRING)       --按照数据日期天分区
+CLUSTERED BY  (UUID)  INTO 3 BUCKETS  --分桶
+STORED AS ORC TBLPROPERTIES ("transactional"="true"); --ORC事务表
+
+
+
+DROP TABLE IF EXISTS GDM.CUST03000002;
+
+CREATE TABLE GDM.CUST03000002 (Cst_No STRING COMMENT '客户号'
+,Ind_Tp STRING COMMENT '指标类型'
+,Ind_Val DECIMAL(22,2) COMMENT '指标值'
+,Txn_Inst STRING COMMENT '交易机构'
+,Chnl_Tp STRING COMMENT '渠道类型'
+,Txn_CD STRING COMMENT '交易代码'
+,UUID STRING COMMENT 'UUID'
+)
+COMMENT '客户级_交易机构_渠道类型_交易代码'
+PARTITIONED BY (DATA_DT STRING)       --按照数据日期天分区
+CLUSTERED BY  (UUID)  INTO 3 BUCKETS  --分桶
+STORED AS ORC TBLPROPERTIES ("transactional"="true"); --ORC事务表
+
+
+
+DROP TABLE IF EXISTS GDM.CUST04000001;
+
+CREATE TABLE GDM.CUST04000001 (Cst_No STRING COMMENT '客户号'
+,Ind_Tp STRING COMMENT '指标类型'
+,Ind_Val DECIMAL(22,2) COMMENT '指标值'
+,Inst STRING COMMENT '机构'
+,Bsn_LrgCgy STRING COMMENT '业务大类'
+,Pd STRING COMMENT '产品'
+,Trm STRING COMMENT '期限'
+,UUID STRING COMMENT 'UUID'
+)
+COMMENT '客户级_机构_业务大类_产品_期限'
+PARTITIONED BY (DATA_DT STRING)       --按照数据日期天分区
+CLUSTERED BY  (UUID)  INTO 29 BUCKETS  --分桶
+STORED AS ORC TBLPROPERTIES ("transactional"="true"); --ORC事务表
+
+
+
+DROP TABLE IF EXISTS GDM.CUST04000002;
+
+CREATE TABLE GDM.CUST04000002 (Cst_No STRING COMMENT '客户号'
+,Ind_Tp STRING COMMENT '指标类型'
+,Ind_Val DECIMAL(22,2) COMMENT '指标值'
+,CstMgr STRING COMMENT '客户经理'
+,Bsn_LrgCgy STRING COMMENT '业务大类'
+,Pd STRING COMMENT '产品'
+,Trm STRING COMMENT '期限'
+,UUID STRING COMMENT 'UUID'
+)
+COMMENT '客户级_客户经理_业务大类_产品_期限'
+PARTITIONED BY (DATA_DT STRING)       --按照数据日期天分区
+CLUSTERED BY  (UUID)  INTO 29 BUCKETS  --分桶
+STORED AS ORC TBLPROPERTIES ("transactional"="true"); --ORC事务表
+
+
+
+DROP TABLE IF EXISTS GDM.DIM_CHNL;
+
+CREATE TABLE GDM.DIM_CHNL (Chnl_No STRING COMMENT '渠道号'
+,Chnl_Nm STRING COMMENT '渠道名称'
+,Chnl_Hier STRING COMMENT '渠道层级'
+,Supr_Chnl_No STRING COMMENT '上级渠道号'
+,Lvl1_Chnl_No STRING COMMENT '一级渠道号'
+,Lvl1_Chnl_Nm STRING COMMENT '一级渠道名称'
+,Lvl2_Chnl_No STRING COMMENT '二级渠道号'
+,Lvl2_Chnl_Nm STRING COMMENT '二级渠道名称'
+,Lvl3_Chnl_No STRING COMMENT '三级渠道号'
+,Lvl3_Chnl_Nm STRING COMMENT '三级渠道名称'
+,Lvl4_Chnl_No STRING COMMENT '四级渠道号'
+,Lvl4_Chnl_Nm STRING COMMENT '四级渠道名称'
+,Rmrk STRING COMMENT '备注'
+,UUID STRING COMMENT 'UUID'
+,DATA_DT STRING COMMENT '数据日期'
+)
+COMMENT '渠道维'
+CLUSTERED BY  (UUID)  INTO 3 BUCKETS  --分桶
+STORED AS ORC TBLPROPERTIES ("transactional"="true"); --ORC事务表
+
+
+
+DROP TABLE IF EXISTS GDM.DIM_CSTACCT_CTRT;
+
+CREATE TABLE GDM.DIM_CSTACCT_CTRT (CrdPap_No STRING COMMENT '卡折号'
+,InrAcc_No STRING COMMENT '内部账号'
+,Acc_SN STRING COMMENT '账户序号'
+,CtAc_Tp STRING COMMENT '客户账户类型'
+,Cst_No STRING COMMENT '客户号'
+,Cst_Nm STRING COMMENT '客户名'
+,Ccy STRING COMMENT '币种'
+,Crd_Tp STRING COMMENT '证件类型'
+,Crd_No STRING COMMENT '证件号'
+,OpnCrd_Dt STRING COMMENT '开卡日期'
+,CnclAcct_Dt STRING COMMENT '销户日期'
+,Actvt_Dt	STRING COMMENT '激活日期'
+,Crd_St STRING COMMENT '卡状态'
+,UUID STRING COMMENT 'UUID'
+)
+COMMENT '客户账号对照表'
+PARTITIONED BY (DATA_DT STRING)       --按照数据日期天分区
+CLUSTERED BY  (UUID)  INTO 3 BUCKETS  --分桶
+STORED AS ORC TBLPROPERTIES ("transactional"="true"); --ORC事务表
+
+
+
+DROP TABLE IF EXISTS GDM.DIM_CSTMGR_CTRT;
+
+CREATE TABLE GDM.DIM_CSTMGR_CTRT (CstMgr_No STRING COMMENT '客户经理号'
+,InrAcc_No STRING COMMENT '内部账号'
+,CrdPap_No STRING COMMENT '卡折号'
+,Rltv_Tp STRING COMMENT '关联类型'
+,AccNm STRING COMMENT '户名'
+,OpAcIns STRING COMMENT '开户机构'
+,OpnAcc_Dt STRING COMMENT '开户日期'
+,Acc_Tp STRING COMMENT '账户类型'
+,DvIn_ProP DECIMAL(22,7) COMMENT '分成比例'
+,RelPsn STRING COMMENT '关联人'
+,Rltv_Dt STRING COMMENT '关联日期'
+,UUID STRING COMMENT 'UUID'
+)
+COMMENT '客户经理对照表'
+PARTITIONED BY (DATA_DT STRING)       --按照数据日期天分区
+CLUSTERED BY  (UUID)  INTO 3 BUCKETS  --分桶
+STORED AS ORC TBLPROPERTIES ("transactional"="true"); --ORC事务表
+
+
+
+DROP TABLE IF EXISTS GDM.DIM_EMP;
+
+CREATE TABLE GDM.DIM_EMP (Emp_No STRING COMMENT '员工号'
+,Emp_Nm STRING COMMENT '员工名'
+,Cst_No STRING COMMENT '客户号'
+,IDCrd_No STRING COMMENT '身份证号'
+,MblPh_No STRING COMMENT '手机号'
+,Blng_Inst STRING COMMENT '所属机构'
+,Role_No STRING COMMENT '角色号'
+,Emp_St STRING COMMENT '员工状态'
+,Gnd STRING COMMENT '性别'
+,UUID STRING COMMENT 'UUID'
+)
+COMMENT '员工维'
+PARTITIONED BY (DATA_DT STRING)       --按照数据日期天分区
+CLUSTERED BY  (UUID)  INTO 3 BUCKETS  --分桶
+STORED AS ORC TBLPROPERTIES ("transactional"="true"); --ORC事务表
+
+
+
+DROP TABLE IF EXISTS GDM.DIM_GL_CHK;
+
+CREATE TABLE GDM.DIM_GL_CHK (InsNo STRING COMMENT '机构号'
+,Sbj_No STRING COMMENT '科目号'
+,Sbj_Nm STRING COMMENT '科目名'
+,Ccy STRING COMMENT '币种'
+,GnlLdgr_Bal DECIMAL(22,2) COMMENT '总账余额'
+,LdgrAcc_Bal DECIMAL(22,2) COMMENT '分户账余额'
+,TotPnt_DifAmt DECIMAL(22,2) COMMENT '总分差额'
+,TotPnt_Tst_ID STRING COMMENT '总分检验标识'
+,TotPnt_Verf_Desc STRING COMMENT '总分校验描述'
+,UUID STRING COMMENT 'UUID'
+)
+COMMENT '总分核对表'
+PARTITIONED BY (DATA_DT STRING)       --按照数据日期天分区
+CLUSTERED BY  (UUID)  INTO 3 BUCKETS  --分桶
+STORED AS ORC TBLPROPERTIES ("transactional"="true"); --ORC事务表
+
+
+
+DROP TABLE IF EXISTS GDM.DIM_INST;
+
+CREATE TABLE GDM.DIM_INST (InsNo STRING COMMENT '机构号'
+,Inst_Nm STRING COMMENT '机构名'
+,Inst_Hier STRING COMMENT '机构层级'
+,Inst_St STRING COMMENT '机构状态'
+,Wthr_OpInst STRING COMMENT	'是否营业机构'
+,WTHR_FNSTG_INST STRING COMMENT '是否叶子节点'
+,Supr_InsNo STRING COMMENT '上级机构号'
+,Lvl1_InsNo STRING COMMENT '一级机构号'
+,Lvl1_Inst_Nm STRING COMMENT '一级机构名称'
+,Lvl2_InsNo STRING COMMENT '二级机构号'
+,Lvl2_Inst_Nm STRING COMMENT '二级机构名称'
+,Lvl3_InsNo STRING COMMENT '三级机构号'
+,Lvl3_Inst_Nm STRING COMMENT '三级机构名称'
+,Lvl4_InsNo STRING COMMENT '四级机构号'
+,Lvl4_Inst_Nm STRING COMMENT '四级机构名称'
+,Lvl5_InsNo STRING COMMENT '五级机构号'
+,Lvl5_Inst_Nm STRING COMMENT '五级机构名称'
+,Lvl6_InsNo STRING COMMENT '六级机构号'
+,Lvl6_Inst_Nm STRING COMMENT '六级机构名称'
+,Lvl7_InsNo STRING COMMENT '七级机构号'
+,Lvl7_Inst_Nm STRING COMMENT '七级机构名称'
+,DtSrc STRING COMMENT '数据来源'
+,UUID STRING COMMENT 'UUID'
+)
+COMMENT '机构维'
+PARTITIONED BY (DATA_DT STRING)       --按照数据日期天分区
+CLUSTERED BY  (UUID)  INTO 3 BUCKETS  --分桶
+STORED AS ORC TBLPROPERTIES ("transactional"="true"); --ORC事务表
+
+
+
+DROP TABLE IF EXISTS GDM.DIM_MRCH_CTRT;
+
+CREATE TABLE GDM.DIM_MRCH_CTRT (Cst_No STRING COMMENT '客户号'
+,Mrch_No STRING COMMENT '商户号'
+,Alp_Mrch_ID STRING COMMENT '支付宝商户编号'
+,WeChat_Mrch_ID STRING COMMENT '微信商户编号'
+,Mrch_Nm STRING COMMENT '商户名'
+,Mrch_SgnInst STRING COMMENT '商户签约机构'
+,Mrch_OpAcIns	STRING COMMENT '商户开户机构'
+,Mrch_Setl_AccNo STRING COMMENT '商户结算账号'
+,Mrch_To_Setl_AccNo STRING COMMENT '商户待结算账号'
+,Mrch_ID STRING COMMENT '商户标识'
+,Mrch_Cgy STRING COMMENT '商户类别'
+,Py_Chnl STRING COMMENT '支付渠道'
+,Entp_Tp STRING COMMENT '企业类型'
+,Entp_Char STRING COMMENT '企业性质'
+,Mrch_Chnl_Tp STRING COMMENT '商户渠道类型'
+,Mrch_Expan_Mod STRING COMMENT '商户拓展方式'
+,Acq_Outsrc_ServInst STRING COMMENT '收单外包服务机构'
+,Oprg_Ctf_FileTp STRING COMMENT '营业证明文件类型'
+,Oprg_Ctf_FileNo STRING COMMENT '营业证明文件号码'
+,Mrch_RgtAdr STRING COMMENT '商户注册地址'
+,Tax_Rgs_CD STRING COMMENT '税务登记代码'
+,LgRps_Name STRING COMMENT '法人代表名字'
+,LgRps_Crd_Tp STRING COMMENT '法人代表证件类型'
+,LgRps_Crd_No STRING COMMENT '法人代表证件号码'
+,LglPsn_Crd_AvlDt STRING COMMENT '法人证件有效期'
+,LglPsn_Ctc_Tel STRING COMMENT '法人联系电话'
+,Crt_Psn STRING COMMENT '创建人'
+,Crt_Tm STRING COMMENT '创建时间'
+,DtSrc STRING COMMENT '数据来源'
+,UUID STRING COMMENT 'UUID'
+)
+COMMENT '商户对照表'
+PARTITIONED BY (DATA_DT STRING)       --按照数据日期天分区
+CLUSTERED BY  (UUID)  INTO 3 BUCKETS  --分桶
+STORED AS ORC TBLPROPERTIES ("transactional"="true"); --ORC事务表
+
+
+
+DROP TABLE IF EXISTS GDM.DIM_PD;
+
+CREATE TABLE GDM.DIM_PD (Pd_No STRING COMMENT '产品号'
+,Pd_Nm STRING COMMENT '产品名'
+,Pd_LrgCgy STRING COMMENT '产品大类'
+,DtSrc STRING COMMENT '数据来源'
+,UUID STRING COMMENT 'UUID'
+)
+COMMENT '产品维'
+PARTITIONED BY (DATA_DT STRING)       --按照数据日期天分区
+CLUSTERED BY  (UUID)  INTO 3 BUCKETS  --分桶
+STORED AS ORC TBLPROPERTIES ("transactional"="true"); --ORC事务表
+
+
+
+DROP TABLE IF EXISTS GDM.DIM_SBJ;
+
+CREATE TABLE GDM.DIM_SBJ (Sbj_No STRING COMMENT '科目号'
+,Sbj_Nm STRING COMMENT '科目名称'
+,Sbj_Hier STRING COMMENT '科目层级'
+,Supr_Sbj_No STRING COMMENT '上级科目号'
+,Lvl1_Sbj_No STRING COMMENT '一级科目号'
+,Lvl1_Sbj_Nm STRING COMMENT '一级科目名称'
+,Lvl2_Sbj_No STRING COMMENT '二级科目号'
+,Lvl2_Sbj_Nm STRING COMMENT '二级科目名称'
+,Lvl3_Sbj_No STRING COMMENT '三级科目号'
+,Lvl3_Sbj_Nm STRING COMMENT '三级科目名称'
+,Lvl4_Sbj_No STRING COMMENT '四级科目号'
+,Lvl4_Sbj_Nm STRING COMMENT '四级科目名称'
+,Lvl5_Sbj_No STRING COMMENT '五级科目号'
+,Lvl5_Sbj_Nm STRING COMMENT '五级科目名称'
+,Lvl6_Sbj_No STRING COMMENT '六级科目号'
+,Lvl6_Sbj_Nm STRING COMMENT '六级科目名称'
+,Wthr_Fnstg  STRING COMMENT '是否末级'
+,DtSrc STRING COMMENT '数据来源'
+,UUID STRING COMMENT 'UUID'
+)
+COMMENT '科目维'
+PARTITIONED BY (DATA_DT STRING)       --按照数据日期天分区
+CLUSTERED BY  (UUID)  INTO 3 BUCKETS  --分桶
+STORED AS ORC TBLPROPERTIES ("transactional"="true"); --ORC事务表
+
+
+
+DROP TABLE IF EXISTS GDM.IND_DIM_CD_CMNT;
+
+CREATE TABLE GDM.IND_DIM_CD_CMNT (Tbl_Nm_CD STRING COMMENT '表名代码'
+,Dim_Fld_Eng_Nm STRING COMMENT '维度字段英文名'
+,Dim_Fld_Chn_Nm STRING COMMENT '维度字段中文名'
+,Dim_CD STRING COMMENT '维度码值'
+,Dim_CD_Cmnt STRING COMMENT '维度码值说明'
+,UUID STRING COMMENT 'UUID'
+)
+COMMENT '指标维度码值说明'
+PARTITIONED BY (DATA_DT STRING)       --按照数据日期天分区
+CLUSTERED BY  (UUID)  INTO 3 BUCKETS  --分桶
+STORED AS ORC TBLPROPERTIES ("transactional"="true"); --ORC事务表
+
+
+
+DROP TABLE IF EXISTS GDM.IND_TBL_CMNT;
+
+CREATE TABLE GDM.IND_TBL_CMNT (Tbl_Nm_CD STRING COMMENT '表名代码'
+,Tbl_Nm_Desc STRING COMMENT '表名描述'
+,UUID STRING COMMENT 'UUID'
+,DATA_DT STRING COMMENT '数据日期'
+)
+COMMENT '指标表说明'
+CLUSTERED BY  (UUID)  INTO 3 BUCKETS  --分桶
+STORED AS ORC TBLPROPERTIES ("transactional"="true"); --ORC事务表
+
+
+
+DROP TABLE IF EXISTS GDM.IND_TP_FLD_CMNT;
+
+CREATE TABLE GDM.IND_TP_FLD_CMNT (Tbl_Nm_CD STRING COMMENT '表名代码'
+,Ind_Tp_Fld_Nm STRING COMMENT '指标类型字段名'
+,Ind_Tp_Val STRING COMMENT '指标类型值'
+,Ind_Tp_Cmnt STRING COMMENT '指标类型说明'
+,UUID STRING COMMENT 'UUID'
+,DATA_DT STRING COMMENT '数据日期'
+)
+COMMENT '指标类型字段说明'
+CLUSTERED BY  (UUID)  INTO 3 BUCKETS  --分桶
+STORED AS ORC TBLPROPERTIES ("transactional"="true"); --ORC事务表
+
+
+
+DROP TABLE IF EXISTS GDM.INST01000001;
+
+CREATE TABLE GDM.INST01000001 (Inst STRING COMMENT '机构'
+,Ind_Tp STRING COMMENT '指标类型'
+,Ind_Val DECIMAL(22,2) COMMENT '指标值'
+,Sbj_No STRING COMMENT '科目号'
+,UUID STRING COMMENT 'UUID'
+)
+COMMENT '机构级_科目'
+PARTITIONED BY (DATA_DT STRING)       --按照数据日期天分区
+CLUSTERED BY  (UUID)  INTO 3 BUCKETS  --分桶
+STORED AS ORC TBLPROPERTIES ("transactional"="true"); --ORC事务表
+
+
+
+DROP TABLE IF EXISTS GDM.INST01000002;
+
+CREATE TABLE GDM.INST01000002 (Inst STRING COMMENT '机构'
+,Ind_Tp STRING COMMENT '指标类型'
+,Ind_Val DECIMAL(22,2) COMMENT '指标值'
+,Chnl_Tp STRING COMMENT '渠道类型'
+,UUID STRING COMMENT 'UUID'
+)
+COMMENT '机构级_渠道类型'
+PARTITIONED BY (DATA_DT STRING)       --按照数据日期天分区
+CLUSTERED BY  (UUID)  INTO 3 BUCKETS  --分桶
+STORED AS ORC TBLPROPERTIES ("transactional"="true"); --ORC事务表
+
+
+
+DROP TABLE IF EXISTS GDM.INST02000001;
+
+CREATE TABLE GDM.INST02000001 (Inst STRING COMMENT '机构'
+,Ind_Tp STRING COMMENT '指标类型'
+,Ind_Val DECIMAL(22,2) COMMENT '指标值'
+,Chnl_Tp STRING COMMENT '渠道类型'
+,Txn_CD STRING COMMENT '交易代码'
+,UUID STRING COMMENT 'UUID'
+)
+COMMENT '机构级_渠道类型_交易代码'
+PARTITIONED BY (DATA_DT STRING)       --按照数据日期天分区
+CLUSTERED BY  (UUID)  INTO 3 BUCKETS  --分桶
+STORED AS ORC TBLPROPERTIES ("transactional"="true"); --ORC事务表
+
+
+
+DROP TABLE IF EXISTS GDM.INST02000002;
+
+CREATE TABLE GDM.INST02000002 (Inst STRING COMMENT '机构'
+,Ind_Tp STRING COMMENT '指标类型'
+,Ind_Val DECIMAL(22,2) COMMENT '指标值'
+,Medm_Cgy STRING COMMENT '介质种类'
+,Medm_St STRING COMMENT '介质状态'
+,UUID STRING COMMENT 'UUID'
+)
+COMMENT '机构级_介质种类_介质状态'
+PARTITIONED BY (DATA_DT STRING)       --按照数据日期天分区
+CLUSTERED BY  (UUID)  INTO 3 BUCKETS  --分桶
+STORED AS ORC TBLPROPERTIES ("transactional"="true"); --ORC事务表
+
+
+
+DROP TABLE IF EXISTS GDM.INST03000001;
+
+CREATE TABLE GDM.INST03000001 (Inst STRING COMMENT '机构'
+,Ind_Tp STRING COMMENT '指标类型'
+,Ind_Val DECIMAL(22,2) COMMENT '指标值'
+,Bsn_LrgCgy STRING COMMENT '业务大类'
+,Pd STRING COMMENT '产品'
+,Trm STRING COMMENT '期限'
+,UUID STRING COMMENT 'UUID'
+)
+COMMENT '机构级_业务大类_产品_期限'
+PARTITIONED BY (DATA_DT STRING)       --按照数据日期天分区
+CLUSTERED BY  (UUID)  INTO 29 BUCKETS  --分桶
+STORED AS ORC TBLPROPERTIES ("transactional"="true"); --ORC事务表
+
+
+
+DROP TABLE IF EXISTS GDM.INST04000001;
+
+CREATE TABLE GDM.INST04000001 (Inst STRING COMMENT '机构'
+,Ind_Tp STRING COMMENT '指标类型'
+,Ind_Val DECIMAL(22,2) COMMENT '指标值'
+,CstMgr STRING COMMENT '客户经理'
+,Bsn_LrgCgy STRING COMMENT '业务大类'
+,Pd STRING COMMENT '产品'
+,Trm STRING COMMENT '期限'
+,UUID STRING COMMENT 'UUID'
+)
+COMMENT '机构级_客户经理'
+PARTITIONED BY (DATA_DT STRING)       --按照数据日期天分区
+CLUSTERED BY  (UUID)  INTO 29 BUCKETS  --分桶
+STORED AS ORC TBLPROPERTIES ("transactional"="true"); --ORC事务表
+
+DROP TABLE IF EXISTS GDM.DIM_CHNL_SIGN;
+CREATE TABLE GDM.DIM_CHNL_SIGN (
+ Bsn_Nm	      STRING COMMENT '业务名称'
+,Cst_No	      STRING COMMENT '客户号'
+,Cst_Nm	      STRING COMMENT '客户名'
+,Cst_Tp	      STRING COMMENT '客户类型'
+,AccNo	      STRING COMMENT '账号'
+,Crd_No	      STRING COMMENT '证件号码'
+,Crd_Tp	      STRING COMMENT '证件类型'
+,MblPh_No	    STRING COMMENT '手机号'
+,Chnl_Src	    STRING COMMENT '渠道来源'
+,Sign_Chnl	  STRING COMMENT '签约渠道'
+,Sign_St	    STRING COMMENT '签约状态'
+,SnDt	        STRING COMMENT '签约日期'
+,Sign_Tlr	    STRING COMMENT '签约柜员'
+,SgnInst	    STRING COMMENT '签约机构'
+,AgrTmt_Dt	  STRING COMMENT '解约日期'
+,AgrTmt_Tlr	  STRING COMMENT '解约柜员'
+,AgrTmt_Inst	STRING COMMENT '解约机构'
+,Rsrv_Fld1	  STRING COMMENT '备用字段1'
+,Rsrv_Fld2	  STRING COMMENT '备用字段2'
+,Rsrv_Fld3	  STRING COMMENT '备用字段3'
+,UUID	        STRING COMMENT 'UUID'
+)
+COMMENT '渠道签约表'
+PARTITIONED BY (DATA_DT STRING)        --按照数据日期天分区
+CLUSTERED BY  (UUID)  INTO 29 BUCKETS   --分桶
+STORED AS ORC TBLPROPERTIES ("transactional"="true"); --ORC事务表
+
+DROP TABLE IF EXISTS GDM.DIM_CST_ACCNO_UNIQ;                          
+CREATE TABLE GDM.DIM_CST_ACCNO_UNIQ (                                 
+ Cst_AccNo	  STRING COMMENT   '客户账号'                              
+,AccNo	      STRING COMMENT   '负债账号'                              
+,AccNm	      STRING COMMENT   '账户名称'                              
+,Cst_No	      STRING COMMENT   '客户号'                                
+,Cst_Tp	      STRING COMMENT   '客户类型'                             
+,Acc_OpAcIns  STRING COMMENT   '账户开户机构'                          
+,Acc_St	      STRING COMMENT   '账户状态'                             
+,Lby_Pd_Tp	  STRING COMMENT   '负债产品类型'                          
+,Rcrd_St	    STRING COMMENT   '记录状态'                             
+,UUID	        STRING COMMENT 'UUID'                              
+)                                                                
+COMMENT '客户账号唯一表'                                             
+PARTITIONED BY (DATA_DT STRING)        --按照数据日期天分区      
+CLUSTERED BY  (UUID)  INTO 13 BUCKETS   --分桶                   
+STORED AS ORC TBLPROPERTIES ("transactional"="true"); --ORC事务表
+
+DROP TABLE IF EXISTS GDM.ORG_CST_LBI;
+CREATE  TABLE `GDM.ORG_CST_LBI`(                                                                                                                                     
+   Cst_No                              string  COMMENT '客户号                     '                                                                                                                     
+   ,Cst_Nm                             string  COMMENT '客户名                     '                                                                                                                     
+   ,BSC_DAT_ACCNO                      string  COMMENT '基本存款账户账号           '                                                                                                                         
+   ,Wthr_Cr_Cst_Ind                    string  COMMENT '是否信贷客户标志           '                                                                                                                         
+   ,Wthr_Is_Bnk_BscAcc                 string  COMMENT '是否是我行基本户           '                                                                                                                           
+   ,Wthr_OurBnk_Shrh                   string  COMMENT '是否本行股东               '                                                                                                                    
+   ,Wthr_BlgTo_GrpCst                  string  COMMENT '是否属于集团客户           '                                                                                                                     
+   ,Wthr_Lstd_Entp                     string  COMMENT '是否上市企业               '                                                                                                                   
+   ,Wthr_OurBnk_Rltv_Entp              string  COMMENT '是否本行关联企业           '                                                                                                                     
+   ,Wthr_Rst_Idy                       string  COMMENT '是否限制行业               '                                                                                                                   
+   ,Wthr_Elmn_Idy                      string  COMMENT '是否淘汰行业               '                                                                                                                   
+   ,Wthr_Rgon_In_Key_Entp              string  COMMENT '是否区域内重点企业         '                                                                                                                      
+   ,Wthr_Rgon_In_Advt_Entp             string  COMMENT '是否区域内优势企业         '                                                                                                                      
+   ,Wthr_Rgon_In_Ld_Entp               string  COMMENT '是否区域内龙头企业         '                                                                                                                      
+   ,Wthr_Elmn_Entp                     string  COMMENT '是否两高一剩企业           '                                                                                                                     
+   ,Wthr_DiffPlc_Cst                   string  COMMENT '是否异地客户               '                                                                                                                   
+   ,Wthr_Cls_Entp                      string  COMMENT '是否关停企业               '                                                                                                                   
+   ,Wthr_RelPty_Cst                    string  COMMENT '是否关联方客户             '                                                                                                                    
+   ,Cst_ID                             string  COMMENT '客户标识                   '                                                                                                                     
+   ,Wthr_Fnc_Pltf_Cgy_Cst              string  COMMENT '是否融资平台类客户         '                                                                                                                      
+   ,Wthr_ClnTrdPd_Entp                 string  COMMENT '是否民贸民品企业           '                                                                                                                        
+   ,Wthr_BlgTo_TechInvtEntp            string  COMMENT '是否属于科技创新企业       '                                                                                                                          
+   ,Wthr_BlgTo_Agrct_Idy_ChId_Ld_Entp  string  COMMENT '是否属于农业产业化龙头企业 '                                                                                                                            
+   ,Wthr_Pvdr                          string  COMMENT '是否供应商                 '                                                                                                                   
+   ,PVDR_ID                            string  COMMENT '供应商编号                 '                                                                                                                  
+   ,WthrVAT_Rgst_CD                    string  COMMENT '是否有VAT注册码            '                                                                                                                   
+   ,CRPNDVAT_RGST_CD                   string  COMMENT '对应VAT注册码              '                                                                                                                 
+   ,Wthr_Rtl_Shop                      string  COMMENT '是否零售门店               '                                                                                                                
+   ,EBnk_Sign_Ind                      string  COMMENT '网上银行签约标志           '                                                                                                                       
+   ,EBnk_SgnInst_ID                    string  COMMENT '网上银行签约机构编号       '                                                                                                                         
+   ,SMS_Chnl_Sign_Ind                  string  COMMENT '短信渠道签约标志           '                                                                                                                    
+   ,SMS_Chnl_SgnInst_ID                string  COMMENT '短信渠道签约机构编号       '                                                                                                                        
+   ,Tel_Bnk_Sign_Ind                   string  COMMENT '电话银行签约标志           '                                                                                                                      
+   ,Tel_Bnk_SgnInst_ID                 string  COMMENT '电话银行签约机构编号       '                                                                                                                        
+   ,UUID                               string  COMMENT 'UUID                       '                                                                                                                                         
+   ,DATA_DT                            string  COMMENT '数据日期                   '                                                                                                                                      
+)   
+COMMENT '对公客户标签临时表'
+CLUSTERED BY  (UUID)  INTO 89 BUCKETS  --分桶
+STORED AS ORC TBLPROPERTIES ("transactional"="true");  
+
+DROP TABLE IF EXISTS GDM.ORG_CST_LBI_TMP;
+CREATE  TABLE `GDM.ORG_CST_LBI_TMP`(                                                                                                                                     
+   Cst_No                              string  COMMENT '客户号                     '                                                                                                                     
+   ,Cst_Nm                             string  COMMENT '客户名                     '                                                                                                                     
+   ,BSC_DAT_ACCNO                      string  COMMENT '基本存款账户账号           '                                                                                                                         
+   ,Wthr_Cr_Cst_Ind                    string  COMMENT '是否信贷客户标志           '                                                                                                                         
+   ,Wthr_Is_Bnk_BscAcc                 string  COMMENT '是否是我行基本户           '                                                                                                                           
+   ,Wthr_OurBnk_Shrh                   string  COMMENT '是否本行股东               '                                                                                                                    
+   ,Wthr_BlgTo_GrpCst                  string  COMMENT '是否属于集团客户           '                                                                                                                     
+   ,Wthr_Lstd_Entp                     string  COMMENT '是否上市企业               '                                                                                                                   
+   ,Wthr_OurBnk_Rltv_Entp              string  COMMENT '是否本行关联企业           '                                                                                                                     
+   ,Wthr_Rst_Idy                       string  COMMENT '是否限制行业               '                                                                                                                   
+   ,Wthr_Elmn_Idy                      string  COMMENT '是否淘汰行业               '                                                                                                                   
+   ,Wthr_Rgon_In_Key_Entp              string  COMMENT '是否区域内重点企业         '                                                                                                                      
+   ,Wthr_Rgon_In_Advt_Entp             string  COMMENT '是否区域内优势企业         '                                                                                                                      
+   ,Wthr_Rgon_In_Ld_Entp               string  COMMENT '是否区域内龙头企业         '                                                                                                                      
+   ,Wthr_Elmn_Entp                     string  COMMENT '是否两高一剩企业           '                                                                                                                     
+   ,Wthr_DiffPlc_Cst                   string  COMMENT '是否异地客户               '                                                                                                                   
+   ,Wthr_Cls_Entp                      string  COMMENT '是否关停企业               '                                                                                                                   
+   ,Wthr_RelPty_Cst                    string  COMMENT '是否关联方客户             '                                                                                                                    
+   ,Cst_ID                             string  COMMENT '客户标识                   '                                                                                                                     
+   ,Wthr_Fnc_Pltf_Cgy_Cst              string  COMMENT '是否融资平台类客户         '                                                                                                                      
+   ,Wthr_ClnTrdPd_Entp                 string  COMMENT '是否民贸民品企业           '                                                                                                                        
+   ,Wthr_BlgTo_TechInvtEntp            string  COMMENT '是否属于科技创新企业       '                                                                                                                          
+   ,Wthr_BlgTo_Agrct_Idy_ChId_Ld_Entp  string  COMMENT '是否属于农业产业化龙头企业 '                                                                                                                            
+   ,Wthr_Pvdr                          string  COMMENT '是否供应商                 '                                                                                                                   
+   ,PVDR_ID                            string  COMMENT '供应商编号                 '                                                                                                                  
+   ,WthrVAT_Rgst_CD                    string  COMMENT '是否有VAT注册码            '                                                                                                                   
+   ,CRPNDVAT_RGST_CD                   string  COMMENT '对应VAT注册码              '                                                                                                                 
+   ,Wthr_Rtl_Shop                      string  COMMENT '是否零售门店               '                                                                                                                
+   ,EBnk_Sign_Ind                      string  COMMENT '网上银行签约标志           '                                                                                                                       
+   ,EBnk_SgnInst_ID                    string  COMMENT '网上银行签约机构编号       '                                                                                                                         
+   ,SMS_Chnl_Sign_Ind                  string  COMMENT '短信渠道签约标志           '                                                                                                                    
+   ,SMS_Chnl_SgnInst_ID                string  COMMENT '短信渠道签约机构编号       '                                                                                                                        
+   ,Tel_Bnk_Sign_Ind                   string  COMMENT '电话银行签约标志           '                                                                                                                      
+   ,Tel_Bnk_SgnInst_ID                 string  COMMENT '电话银行签约机构编号       '                                                                                                                        
+   ,UUID                               string  COMMENT 'UUID                       '                                                                                                                                         
+   ,DATA_DT                            string  COMMENT '数据日期                   '                                                                                                                                      
+)   
+COMMENT '对公客户标签表'
+CLUSTERED BY  (UUID)  INTO 89 BUCKETS  --分桶
+STORED AS ORC TBLPROPERTIES ("transactional"="true");  
+
+DROP TABLE IF EXISTS GDM.PER_CST_LBI_TMP;
+CREATE  TABLE `GDM.PER_CST_LBI_TMP`(
+   InsNo                    string DEFAULT NULL COMMENT '机构号                 '              
+   ,Cst_No                   string DEFAULT NULL COMMENT '客户号                 '        
+   ,Cst_Nm                   string DEFAULT NULL COMMENT '客户名称               '
+   ,Brth_Dt                  string DEFAULT NULL COMMENT '出生日期               '
+   ,AGE                      int    DEFAULT NULL COMMENT '年龄                   '
+   ,Cst_Rsrv_MblPh_No        string DEFAULT NULL COMMENT '客户预留手机号         '            
+   ,EBnk_Sign_Ind            string DEFAULT NULL COMMENT '网上银行签约标志       '           
+   ,EBnk_AAcc_Ind            string DEFAULT NULL COMMENT '网上银行动户标志       '            
+   ,MPB_Sign_Ind             string DEFAULT NULL COMMENT '手机银行签约标志       '            
+   ,MPB_Wthr_Actvt           string DEFAULT NULL COMMENT '手机银行是否激活       '            
+   ,MPB_AAcc_Ind             string DEFAULT NULL COMMENT '手机银行动户标志       '            
+   ,Tel_Bnk_Sign_Ind         string DEFAULT NULL COMMENT '电话银行签约标志       '            
+   ,Tel_Bnk_AAcc_Ind         string DEFAULT NULL COMMENT '电话银行动户标志       '            
+   ,DSBnk_Sign_Ind           string DEFAULT NULL COMMENT '直销银行签约标志       '            
+   ,DSBnk_AAcc_Ind           string DEFAULT NULL COMMENT '直销银行动户标志       '            
+   ,WeChat_Bnk_Sign_Ind      string DEFAULT NULL COMMENT '微信银行签约标志       '            
+   ,WeChat_Bnk_AAcc_Ind      string DEFAULT NULL COMMENT '微信银行动户标志       '            
+   ,SMS_Bnk_Sign_Ind         string DEFAULT NULL COMMENT '短信银行签约标志       '
+   ,ETC_Sign_Ind             string DEFAULT NULL COMMENT 'ETC签约标志            '
+   ,Hold_Ln_Cst_Ind          string DEFAULT NULL COMMENT '持有贷款客户标志       '                       
+   ,WtCrLn_Cst_Ind           string DEFAULT NULL COMMENT '是否随薪贷             '              
+   ,ECrLn_Cst_Ind            string DEFAULT NULL COMMENT 'E贷客户标志            '         
+   ,NetCr_Cst_Ind            string DEFAULT NULL COMMENT '网贷客户标志           '         
+   ,Mnt_Car_Cr_Cst_Ind       string DEFAULT NULL COMMENT '微车贷客户标志         '          
+   ,Hold_Chrtc_Cst_Ind       string DEFAULT NULL COMMENT '持有理财客户标志       '           
+   ,BrkEvn_Chrtc_Cst_Ind     string DEFAULT NULL COMMENT '保本理财客户标志       '            
+   ,Non_BrkEvn_Chrtc_Cst_Ind string DEFAULT NULL COMMENT '非保本理财客户标志     '            
+   ,OpnIvsmPd_Cst_Ind        string DEFAULT NULL COMMENT '开放式理财产品客户标志 '             
+   ,Bnk_Mrch_Ind             string DEFAULT NULL COMMENT '我行商户标志           '               
+   ,POS_Mrch_Sign_Ind        string DEFAULT NULL COMMENT 'POS商户签约标志        '          
+   ,E_Pay_Mrch_Sign_Ind      string DEFAULT NULL COMMENT '一码付商户签约标志     '          
+   ,CrCrd_OpnCrd_Ind         string DEFAULT NULL COMMENT '信用卡开卡标志         '             
+   ,CrCrd_Actvt_Ind          string DEFAULT NULL COMMENT '信用卡激活标志         '           
+   ,CrCrd_AAcc_Ind           string DEFAULT NULL COMMENT '信用卡动户标志         '           
+   ,CrCrdOvd_Ind             string DEFAULT NULL COMMENT '信用卡逾期标志         '           
+   ,CrCrd_Instm_Ind          string DEFAULT NULL COMMENT '信用卡分期标志         '           
+   ,Hold_Dep_Cst_Ind         string DEFAULT NULL COMMENT '持有存款客户标志       '           
+   ,DmdDep_Cst_Ind           string DEFAULT NULL COMMENT '活期存款客户标志       '            
+   ,TmDep_Cst_Ind            string DEFAULT NULL COMMENT '定期存款客户标志       '            
+   ,OurBnk_Emp_Ind           string DEFAULT NULL COMMENT '本行员工标志           '            
+   ,OurBnk_Shrh_Ind          string DEFAULT NULL COMMENT '本行股东标志           '
+   ,Wthr_PstHsd              string DEFAULT NULL COMMENT '是否农户标志           ' 
+   ,GhCrd_Wthr_Opn           string DEFAULT NULL COMMENT '工会卡是否开通        '           
+   ,GhCrd_Wthr_Actvt         string DEFAULT NULL COMMENT '工会卡是否激活        '  
+   ,Gh_Crd_Wthr_AAcc         string DEFAULT NULL COMMENT '工会卡是否动户        '  
+   
+   ,ScIsCrd_Wthr_Opn         string DEFAULT NULL COMMENT '社保卡是否开通        '  
+   ,ScIsCrd_Wthr_Actvt       string DEFAULT NULL COMMENT '社保卡是否激活        '  
+   ,ScIsCrd_Wthr_AAcc        string DEFAULT NULL COMMENT '社保卡是否动户        '  
+ 
+   ,Wthr_Sign_Pyrl           string DEFAULT NULL COMMENT '是否签约代发工资      '  
+  
+   ,UUID                     string  COMMENT 'UUID '
+   ,DATA_DT                  string  COMMENT '数据日期 '
+)
+COMMENT '个人客户标签临时表'
+CLUSTERED BY  (UUID)  INTO 89 BUCKETS  --分桶
+STORED AS ORC TBLPROPERTIES ("transactional"="true"); --ORC事务表
+
+DROP TABLE IF EXISTS GDM.PER_CST_LBI;
+CREATE  TABLE `GDM.PER_CST_LBI`(
+   InsNo                    string DEFAULT NULL COMMENT '机构号                 '              
+   ,Cst_No                   string DEFAULT NULL COMMENT '客户号                 '        
+   ,Cst_Nm                   string DEFAULT NULL COMMENT '客户名称               '
+   ,Brth_Dt                  string DEFAULT NULL COMMENT '出生日期               '
+   ,AGE                      int    DEFAULT NULL COMMENT '年龄                   '
+   ,Cst_Rsrv_MblPh_No        string DEFAULT NULL COMMENT '客户预留手机号         '            
+   ,EBnk_Sign_Ind            string DEFAULT NULL COMMENT '网上银行签约标志       '           
+   ,EBnk_AAcc_Ind            string DEFAULT NULL COMMENT '网上银行动户标志       '            
+   ,MPB_Sign_Ind             string DEFAULT NULL COMMENT '手机银行签约标志       '            
+   ,MPB_Wthr_Actvt           string DEFAULT NULL COMMENT '手机银行是否激活       '            
+   ,MPB_AAcc_Ind             string DEFAULT NULL COMMENT '手机银行动户标志       '            
+   ,Tel_Bnk_Sign_Ind         string DEFAULT NULL COMMENT '电话银行签约标志       '            
+   ,Tel_Bnk_AAcc_Ind         string DEFAULT NULL COMMENT '电话银行动户标志       '            
+   ,DSBnk_Sign_Ind           string DEFAULT NULL COMMENT '直销银行签约标志       '            
+   ,DSBnk_AAcc_Ind           string DEFAULT NULL COMMENT '直销银行动户标志       '            
+   ,WeChat_Bnk_Sign_Ind      string DEFAULT NULL COMMENT '微信银行签约标志       '            
+   ,WeChat_Bnk_AAcc_Ind      string DEFAULT NULL COMMENT '微信银行动户标志       '            
+   ,SMS_Bnk_Sign_Ind         string DEFAULT NULL COMMENT '短信银行签约标志       '
+   ,ETC_Sign_Ind             string DEFAULT NULL COMMENT 'ETC签约标志            '
+   ,Hold_Ln_Cst_Ind          string DEFAULT NULL COMMENT '持有贷款客户标志       '                       
+   ,WtCrLn_Cst_Ind           string DEFAULT NULL COMMENT '是否随薪贷             '              
+   ,ECrLn_Cst_Ind            string DEFAULT NULL COMMENT 'E贷客户标志            '         
+   ,NetCr_Cst_Ind            string DEFAULT NULL COMMENT '网贷客户标志           '         
+   ,Mnt_Car_Cr_Cst_Ind       string DEFAULT NULL COMMENT '微车贷客户标志         '          
+   ,Hold_Chrtc_Cst_Ind       string DEFAULT NULL COMMENT '持有理财客户标志       '           
+   ,BrkEvn_Chrtc_Cst_Ind     string DEFAULT NULL COMMENT '保本理财客户标志       '            
+   ,Non_BrkEvn_Chrtc_Cst_Ind string DEFAULT NULL COMMENT '非保本理财客户标志     '            
+   ,OpnIvsmPd_Cst_Ind        string DEFAULT NULL COMMENT '开放式理财产品客户标志 '             
+   ,Bnk_Mrch_Ind             string DEFAULT NULL COMMENT '我行商户标志           '               
+   ,POS_Mrch_Sign_Ind        string DEFAULT NULL COMMENT 'POS商户签约标志        '          
+   ,E_Pay_Mrch_Sign_Ind      string DEFAULT NULL COMMENT '一码付商户签约标志     '          
+   ,CrCrd_OpnCrd_Ind         string DEFAULT NULL COMMENT '信用卡开卡标志         '             
+   ,CrCrd_Actvt_Ind          string DEFAULT NULL COMMENT '信用卡激活标志         '           
+   ,CrCrd_AAcc_Ind           string DEFAULT NULL COMMENT '信用卡动户标志         '           
+   ,CrCrdOvd_Ind             string DEFAULT NULL COMMENT '信用卡逾期标志         '           
+   ,CrCrd_Instm_Ind          string DEFAULT NULL COMMENT '信用卡分期标志         '           
+   ,Hold_Dep_Cst_Ind         string DEFAULT NULL COMMENT '持有存款客户标志       '           
+   ,DmdDep_Cst_Ind           string DEFAULT NULL COMMENT '活期存款客户标志       '            
+   ,TmDep_Cst_Ind            string DEFAULT NULL COMMENT '定期存款客户标志       '            
+   ,OurBnk_Emp_Ind           string DEFAULT NULL COMMENT '本行员工标志           '            
+   ,OurBnk_Shrh_Ind          string DEFAULT NULL COMMENT '本行股东标志           '
+   ,Wthr_PstHsd              string DEFAULT NULL COMMENT '是否农户标志           ' 
+   ,GhCrd_Wthr_Opn           string DEFAULT NULL COMMENT '工会卡是否开通        '           
+   ,GhCrd_Wthr_Actvt         string DEFAULT NULL COMMENT '工会卡是否激活        '  
+   ,Gh_Crd_Wthr_AAcc         string DEFAULT NULL COMMENT '工会卡是否动户        '  
+   
+   ,ScIsCrd_Wthr_Opn         string DEFAULT NULL COMMENT '社保卡是否开通        '  
+   ,ScIsCrd_Wthr_Actvt       string DEFAULT NULL COMMENT '社保卡是否激活        '  
+   ,ScIsCrd_Wthr_AAcc        string DEFAULT NULL COMMENT '社保卡是否动户        '  
+ 
+   ,Wthr_Sign_Pyrl           string DEFAULT NULL COMMENT '是否签约代发工资      '  
+  
+   ,UUID                     string  COMMENT 'UUID '
+   ,DATA_DT                  string  COMMENT '数据日期 '
+)
+COMMENT '个人客户标签表'
+CLUSTERED BY  (UUID)  INTO 89 BUCKETS  --分桶
+STORED AS ORC TBLPROPERTIES ("transactional"="true"); --ORC事务表                  
+
+
+
+
+
+
