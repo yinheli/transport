@@ -1,5 +1,7 @@
 {%- for group in groups -%}
--- start {{group.group_name}} --
+------------------------------------
+--- start {{group.group_name}} ---
+------------------------------------
 CREATE OR REPLACE PACKAGE RPT_S.PKG_S_GET_{{group.group_name}} AS
 V_DAY STRING;
 {% for table in group.tables -%}
@@ -29,18 +31,19 @@ COMMIT;
 
 EXECUTE IMMEDIATE 'TRUNCATE TABLE rpt_s.{{table.table}}';
 
-INSERT INTO rpt_s.{{table.table}} ( /*{{table.table_comment}} */
- rpt_dt    /*报表跑批日期*/
+/* {{table.table_comment}} */
+INSERT INTO rpt_s.{{table.table}} (
+ {{'%-40s' | format('rpt_dt')}}    /*报表跑批日期*/
  {%- for field in table.fields %}
- ,{{field.field}}   {% if field.comment %} /*{{field.comment}}*/ {% endif %} 
+ ,{{'%-40s' | format(field.field)}}   {% if field.comment %} /*{{field.comment}}*/ {% endif %} 
  {%- endfor %}
 )                                                                   
 SELECT                                                              
  TO_CHAR(SYSDATE,'YYYYMMDD') AS RPT_DT        /*报表跑批日期*/                    
  {%- for field in table.fields %}
- ,{{field.field}}   {% if field.comment %} /*{{field.comment}}*/ {% endif %} 
+ ,{{'%-40s' | format(field.field)}}   {% if field.comment %} /*{{field.comment}}*/ {% endif %} 
  {%- endfor %}
-FROM SDM.{{table.table}} A
+FROM {{group.user}}.{{table.table}} A
 WHERE A.txn_dt=P_DATE;  /*取当日数据*/
 COMMIT;
 UPDATE RPT_s.log_etl_main  T SET T.END_DT=SYSTIMESTAMP,T.SUCCESS_FLAG='Y' /*更新日志表成功与否标志*/
@@ -98,6 +101,10 @@ COMMIT;
 END P_S_GET_{{group.group_name}}_MAIN;
 END;
 
--- end {{group.group_name}} --
+------------------------------------
+--- end {{group.group_name}} ---
+------------------------------------
+
+
 {% endfor -%}
 
