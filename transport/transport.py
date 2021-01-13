@@ -105,7 +105,7 @@ class Transport():
         p1 = r"CREATE\sTABLE\s(.*)\s*\(([\s\S]*)\)\n[\s\S]+(CLUSTERED.*?BUCKETS).*"
         p2 = r"CREATE\sTABLE\s(.*)\s*\(([\s\S]*)\)\n[\s\S]+"
 
-        if re.match(r'', table, re.MULTILINE | re.IGNORECASE):
+        if re.search(r'CLUSTERED.*?BUCKETS', table, re.MULTILINE | re.IGNORECASE):
             m = re.search(p1, table,
                           re.MULTILINE | re.IGNORECASE)
         else:
