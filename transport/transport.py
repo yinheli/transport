@@ -12,13 +12,16 @@ class Transport():
         os.path.join(os.path.dirname(__file__), 'template')))
 
     def handle(self, excel: str, sqlfile: str, out: str):
+        """处理输入文件"""
+
         print('read :', excel)
         excel_data = self._read_excel(excel)
 
         print('parse:', sqlfile)
         table_tpl = self._parse_table(sqlfile)
 
-        groups = self._group_data(excel_data, table_tpl)
+        # 分组内，最大表数量，通过 chunk_size 控制
+        groups = self._group_data(excel_data, table_tpl, chunk_size=20)
 
         now = datetime.now()
         now_formated = now.strftime('%Y_%m_%d__%H_%M_%S')
@@ -87,6 +90,7 @@ class Transport():
         return tables
 
     def _parse_table_item(self, table):
+        """解析单个建表 table 结构"""
         m = re.search(r"CREATE\sTABLE\s(.*)\s?\(([\s\S]*)\)\nCOMMENT", table,
                       re.MULTILINE | re.IGNORECASE)
         if not m:
@@ -108,7 +112,8 @@ class Transport():
                 {'field': 'DATA_DT', 'type': 'STRING', 'comment': '数据日期'})
         return (name, fields)
 
-    def _group_data(self, excel_data, table_tpl):
+    def _group_data(self, excel_data, table_tpl, chunk_size=5):
+        """处理数据分组"""
         groups = []
 
         tables = []
@@ -147,10 +152,9 @@ class Transport():
                 'tables': tables,
             })
 
-        # self.write_json(groups, 'out.json')
+        # self.write_json(groups, 'out_groups.json')
         # 将 table 数量超过的拆分为小的分组
         chunk_groups = []
-        chunk_size = 5
         for g in groups:
             tables = g['tables']
             if len(tables) > chunk_size:
@@ -165,11 +169,12 @@ class Transport():
                 g['group_name'] = g['user']
                 chunk_groups.append(g)
 
-        self.write_json(chunk_groups, 'out.json')
+        # self.write_json(chunk_groups, 'out_chunk_group.json')
 
         return chunk_groups
 
     def write_json(self, data, file):
+        """json 输出，方便查看复杂的数据结构"""
         import json
         r = json.dumps(data, indent=2, ensure_ascii=False)
         with open(file, 'w+', encoding='utf8') as f:
