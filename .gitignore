@@ -1,3 +1,5 @@
 /gen*.sql
 /tmp
 /out*.json
+/dist
+/*.spec

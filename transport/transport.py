@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import sys
 import re
 from datetime import datetime
 import openpyxl
@@ -8,8 +9,14 @@ from jinja2 import Environment, FileSystemLoader
 
 
 class Transport():
-    env = Environment(loader=FileSystemLoader(
-        os.path.join(os.path.dirname(__file__), 'template')))
+    env: Environment
+
+    def __init__(self):
+        basedir = os.path.dirname(__file__)
+        if getattr(sys, 'frozen', None):
+            basedir = sys._MEIPASS
+        self.env = Environment(loader=FileSystemLoader(
+            os.path.join(basedir, 'template')))
 
     def handle(self, excel: str, sqlfile: str, out: str):
         """处理输入文件"""
@@ -169,7 +176,7 @@ class Transport():
                 g['group_name'] = g['user']
                 chunk_groups.append(g)
 
-        # self.write_json(chunk_groups, 'out_chunk_group.json')
+        self.write_json(chunk_groups, 'out_chunk_group.json')
 
         return chunk_groups
 
