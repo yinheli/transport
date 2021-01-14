@@ -18,6 +18,9 @@ source .venv/bin/activate
 # 安装依赖
 pip install -r requirements.txt
 
+# 安装依赖（用清华大学的镜像），如果上面直接安装比较慢的话
+pip install -i https://pypi.tuna.tsinghua.edu.cn/simple -r requirements.txt
+
 # all done，可以愉快的开发和调试了 🎉
 # 推荐开发工具： vscode、pycharm
 ```
