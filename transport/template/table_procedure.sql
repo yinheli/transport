@@ -5,7 +5,7 @@
 CREATE OR REPLACE PACKAGE {{group.target_db}}.PKG_S_GET_{{group.group_name}} AS
 V_DAY STRING;
 {% for table in group.tables -%}
-PROCEDURE p_s_{{table.table}}(P_DATE STRING);
+PROCEDURE p_s_{{table.table}}(P_DATE STRING);{% if table.table_comment %}--{{table.table_comment}}{% endif %}
 {% endfor -%}
 PROCEDURE P_S_GET_{{group.group_name}}_MAIN(P_DATE STRING);
 END;
@@ -22,6 +22,8 @@ BEGIN
 
 set_env('inceptor.insert.data.format.check','true');--数据类型有误报错
 set_env('transaction.type','inceptor');             --设置事务类型
+
+V_DAY:=SUBSTR(P_DATE,1,4)||'-'||SUBSTR(P_DATE,5,2)||'-'||SUBSTR(P_DATE,7,2);
 
 SELECT {{group.target_db}}.SEQ_ETL.NEXTVAL INTO V_SEQ_ID FROM SYSTEM.DUAL; 
 INSERT INTO {{group.target_db}}.log_etl_main 
@@ -43,7 +45,7 @@ SELECT
  ,{{'%-40s' | format(field.field)}}   {% if field.comment %} /*{{field.comment}}*/ {% endif %} 
  {%- endfor %}
 FROM {{table.source_db}}.{{table.table}} A
-WHERE A.txn_dt=P_DATE;  /*取当日数据*/
+WHERE A.data_dt=v_day;  /*取当日数据*/
 COMMIT;
 UPDATE {{group.target_db}}.log_etl_main  T SET T.END_DT=SYSTIMESTAMP,T.SUCCESS_FLAG='Y' /*更新日志表成功与否标志*/
 WHERE T.SEQ_NO=V_SEQ_ID;
@@ -80,7 +82,7 @@ VALUES (V_SEQ_ID,'PKG_S_GET_{{group.group_name}}','P_S_GET_{{group.group_name}}_
 COMMIT;
 
 {% for table in group.tables -%}
-{{group.target_db}}.pkg_s_get_{{group.group_name}}.p_s_{{table.table}}(p_date);
+{{group.target_db}}.pkg_s_get_{{group.group_name}}.p_s_{{table.table}}(p_date); {% if table.table_comment %}--{{table.table_comment}}{% endif %}
 {% endfor %}
 
 UPDATE {{group.target_db}}.log_etl_main  T SET T.END_DT=SYSTIMESTAMP,T.SUCCESS_FLAG='Y'
