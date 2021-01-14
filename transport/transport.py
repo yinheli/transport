@@ -117,12 +117,18 @@ class Transport():
         name = m.group(1).split('.')[1].upper().strip()
         # 自己加的字段
         fields = [{'field': 'rpt_dt', 'type': 'STRING', 'comment': '报表跑批日期'}]
+        found_dt = False
         for it in [re.split(r'\s+', x.strip()) for x in re.split(r'[\n\s]+\,', m.group(2))]:
             field = it[0].strip()
             item = {'field': field, 'type': it[1].strip()}
             if len(it) > 3:
                 item['comment'] = it[3].replace("'", '').strip()
+            if field.lower() == 'data_dt':
+                found_dt = True
             fields.append(item)
+        if not found_dt:
+            fields.append(
+                {'field': 'DATA_DT', 'type': 'STRING', 'comment': '数据日期'})
 
         buckets = None
         if len(m.groups()) > 2:
