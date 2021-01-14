@@ -77,7 +77,8 @@ class Transport():
                 v = v.strip() if v else ''
                 if i in (2, 3, 4, 5):
                     v = v.upper()
-        sorted(values, key=lambda it: it[2]+it[4])
+        # 按照系统和表名排序
+        sorted(values, key=lambda it: it[2]+it[5])
         return values
 
     def _parse_table(self, sqlfile):
@@ -140,7 +141,7 @@ class Transport():
         source_db = ''
         target_db = ''
 
-        # 按用户/系统分组
+        # 按系统分组
         for idx, row in enumerate(excel_data):
             system, system_comment, source_db, target_db, table, table_comment = \
                 row[2], row[1], row[3], row[4], row[5], row[6]
@@ -177,7 +178,7 @@ class Transport():
             })
 
         # self.write_json(groups, 'out_groups.json')
-        # 将 table 数量超过的拆分为小的分组
+        # 如果系统组内，表数量比较多，按照 chunk_size 再次分组
         chunk_groups = []
         for g in groups:
             tables = g['tables']
