@@ -5,27 +5,34 @@ import sys
 import re
 from datetime import datetime
 import openpyxl
+import sqlparse
 from jinja2 import Environment, FileSystemLoader
 
 
 class Transport():
     env: Environment
 
-    def __init__(self):
+    def __init__(self, excel: str, sqlfile: str, out: str, **kwargs):
         basedir = os.path.dirname(__file__)
         if getattr(sys, 'frozen', None):
             basedir = sys._MEIPASS
         self.env = Environment(loader=FileSystemLoader(
             os.path.join(basedir, 'template')))
 
-    def handle(self, excel: str, sqlfile: str, out: str):
+        self.excel = excel
+        self.sqlfile = sqlfile
+        self.out = out
+        self.options = kwargs
+
+    def handle(self):
         """处理输入文件"""
 
-        print('read :', excel)
-        excel_data = self._read_excel(excel)
+        print('read :', self.excel)
+        excel_data = self._read_excel(self.excel)
 
-        print('parse:', sqlfile)
-        table_tpl = self._parse_table(sqlfile)
+        print('parse:', self.sqlfile)
+        table_tpl = self._parse_table(
+            self.sqlfile, self.options.get('encoding', 'UTF-8'))
 
         # 分组内，最大表数量，通过 chunk_size 控制
         groups = self._group_data(excel_data, table_tpl, chunk_size=20)
@@ -34,9 +41,9 @@ class Transport():
         now_formated = now.strftime('%Y_%m_%d__%H_%M_%S')
 
         out_table_ddl = os.path.join(
-            out, 'gen_table_ddl_{}.sql'.format(now_formated))
+            self.out, 'gen_table_ddl_{}.sql'.format(now_formated))
         out_table_procedure = os.path.join(
-            out, 'gen_table_procedure_{}.sql'.format(now_formated))
+            self.out, 'gen_table_procedure_{}.sql'.format(now_formated))
 
         file_head = '-- auto generated file, DO NOT EDIT \n' + \
             '-- \n' + \
@@ -45,8 +52,8 @@ class Transport():
             '-- hql  : {sqlfile} \n\n\n'
         file_head = file_head.format(
             date=now.strftime('%Y-%m-%d %H:%M:%S'),
-            excel=excel,
-            sqlfile=sqlfile)
+            excel=self.excel,
+            sqlfile=self.sqlfile)
 
         with open(out_table_ddl, 'w+', encoding='utf8') as f:
             print('writing:', out_table_ddl)
@@ -81,60 +88,75 @@ class Transport():
         sorted(values, key=lambda it: it[2]+it[5])
         return values
 
-    def _parse_table(self, sqlfile):
+    def _parse_table(self, sqlfile, encoding='utf8'):
         """解析 hql 文件，用正则匹配的方式，把 hql 文件的表结构提取出来"""
         tables = {}
-        with open(sqlfile, 'r', encoding='utf8') as f:
+        with open(sqlfile, 'r', encoding=encoding) as f:
             data = f.read()
-            data = re.split(r"DROP\s+TABLE\s+IF\s+EXISTS.*\n",
-                            data, flags=re.IGNORECASE)
-            for item in data:
-                try:
-                    table_name, table_options = self._parse_table_item(item)
-                    if table_name:
-                        tables[table_name] = table_options
-                except Exception as e:
-                    print('parse sql file exception')
-                    raise e
+            statements = sqlparse.parse(data)
+            for it in statements:
+                table_name, table_options = self._parse_table_item(it)
+                if table_name:
+                    tables[table_name] = table_options
         return tables
 
-    def _parse_table_item(self, table):
-        """解析单个建表 table 结构"""
-        # fixme: 一个正则表达 "bucket" 的匹配，
-        # 暂时用两个来处理
-
-        p1 = r"CREATE\sTABLE\s(.*)\s*\(([\s\S]*)\)\n[\s\S]+(CLUSTERED.*?BUCKETS).*"
-        p2 = r"CREATE\sTABLE\s(.*)\s*\(([\s\S]*)\)\n[\s\S]+"
-
-        if re.search(r'CLUSTERED.*?BUCKETS', table, re.MULTILINE | re.IGNORECASE):
-            m = re.search(p1, table,
-                          re.MULTILINE | re.IGNORECASE)
-        else:
-            m = re.search(p2, table,
-                          re.MULTILINE | re.IGNORECASE)
-        if not m:
-            return (None, None)
-        name = m.group(1).split('.')[1].upper().strip()
-        # 自己加的字段
-        fields = [{'field': 'rpt_dt', 'type': 'STRING', 'comment': '报表跑批日期'}]
-        found_dt = False
-        for it in [re.split(r'\s+', x.strip()) for x in re.split(r'[\n\s]+\,', m.group(2))]:
-            field = it[0].strip()
-            item = {'field': field, 'type': it[1].strip()}
-            if len(it) > 3:
-                item['comment'] = it[3].replace("'", '').strip()
-            if field.lower() == 'data_dt':
-                found_dt = True
-            fields.append(item)
-        if not found_dt:
-            fields.append(
-                {'field': 'DATA_DT', 'type': 'STRING', 'comment': '数据日期'})
-
+    def _parse_table_item(self, stmt):
+        tokens = [t for t in sqlparse.sql.TokenList(
+            stmt.tokens) if t.ttype != sqlparse.tokens.Whitespace]
+        is_create_stmt = False
+        table_name = None
+        fields = []
         buckets = None
-        if len(m.groups()) > 2:
-            buckets = m.group(3)
 
-        return (name, {'fields': fields, 'buckets': buckets})
+        def parse_buckets(i):
+            buf = ''
+            for it in tokens[i:]:
+                v = it.value
+                buf += ' ' + v
+                if 'BUCKETS' in v.upper():
+                    break
+            return re.sub(r'\s*--.*', '', buf.strip())
+
+        for i, token in enumerate(tokens):
+            if token.match(sqlparse.tokens.DDL, 'CREATE'):
+                is_create_stmt = True
+
+            # 处理表名
+            if is_create_stmt and table_name is None:
+                if isinstance(token, sqlparse.sql.Identifier):
+                    table_name = token.value.split('.')[-1]
+
+            # 处理字段
+            if is_create_stmt and not fields and isinstance(token, sqlparse.sql.Parenthesis):
+                # print(token.value)
+                txt = token.value
+                txt = txt[txt.find('(')+1:txt.rfind(')')].strip()
+                fields.append(
+                    {'field': 'rpt_dt', 'type': 'STRING', 'comment': '报表跑批日期'})
+                found_dt = False
+                for it in [re.split(r'\s+', x.strip()) for x in re.split(r'[\n\s]+\,', txt)]:
+                    field = it[0].strip()
+                    item = {'field': field, 'type': it[1].strip()}
+                    if 'COMMENT' in it or 'comment' in it:
+                        item['comment'] = it[-1].replace("'", '').strip()
+                    if field.lower() == 'data_dt':
+                        found_dt = True
+                    fields.append(item)
+                if not found_dt:
+                    fields.append(
+                        {'field': 'DATA_DT', 'type': 'STRING', 'comment': '数据日期'})
+
+            # 处理分桶
+            if is_create_stmt and fields and buckets is None:
+                if isinstance(token, sqlparse.sql.Identifier):
+                    txt = token.value
+                    if txt.upper().startswith('CLUSTERED'):
+                        buckets = parse_buckets(i)
+
+        if not is_create_stmt:
+            return (None, None)
+
+        return (table_name, {'fields': fields, 'buckets': buckets})
 
     def _group_data(self, excel_data, table_tpl, chunk_size=5):
         """处理数据分组"""
