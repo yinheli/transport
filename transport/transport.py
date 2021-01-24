@@ -131,20 +131,22 @@ class Transport():
                 # print(token.value)
                 txt = token.value
                 txt = txt[txt.find('(')+1:txt.rfind(')')].strip()
-                fields.append(
-                    {'field': 'rpt_dt', 'type': 'STRING', 'comment': '报表跑批日期'})
-                found_dt = False
                 for it in [re.split(r'\s+', x.strip()) for x in re.split(r'(?:[\n\r\s]*)?(?<!\d)\,(?:[\n\r\s]*)', txt)]:
                     field = it[0].strip()
                     item = {'field': field, 'type': it[1].strip()}
                     if 'COMMENT' in it or 'comment' in it:
                         item['comment'] = it[-1].replace("'", '').strip()
-                    if field.lower() == 'data_dt':
-                        found_dt = True
                     fields.append(item)
-                if not found_dt:
+
+                # 判断是否需要增加 DATA_DT
+                if not list(filter(lambda x: x['field'].upper() == 'DATA_DT', fields)):
                     fields.append(
                         {'field': 'DATA_DT', 'type': 'STRING', 'comment': '数据日期'})
+
+                # 判断是否需要增加 RPT_DT
+                if not list(filter(lambda x: x['field'].upper() == 'RPT_DT', fields)):
+                    fields.insert(
+                        0, {'field': 'RPT_DT', 'type': 'STRING', 'comment': '报表跑批日期'})
 
             # 处理分桶
             if is_create_stmt and fields and buckets is None:
