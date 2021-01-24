@@ -134,7 +134,7 @@ class Transport():
                 fields.append(
                     {'field': 'rpt_dt', 'type': 'STRING', 'comment': '报表跑批日期'})
                 found_dt = False
-                for it in [re.split(r'\s+', x.strip()) for x in re.split(r'(?:[\n\r\s]*)?(?<!\d|\s)\,(?:[\n\r\s]*)', txt)]:
+                for it in [re.split(r'\s+', x.strip()) for x in re.split(r'(?:[\n\r\s]*)?(?<!\d)\,(?:[\n\r\s]*)', txt)]:
                     field = it[0].strip()
                     item = {'field': field, 'type': it[1].strip()}
                     if 'COMMENT' in it or 'comment' in it:
