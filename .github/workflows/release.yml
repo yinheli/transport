@@ -1,0 +1,65 @@
+name: GitHub Actions Release
+on:
+  push:
+    tags:
+      - 'v*'
+jobs:
+  build_windows:
+    name: package for windows
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with: 
+          python-version: '3.x'
+          architecture: 'x64'
+      - run: |
+          pip3 install -r requirements.txt
+          mkdir dist
+          shiv -c transport --compressed -p '/usr/bin/env python' -o dist/transport-windows.pyz .
+      - uses: actions/upload-artifact@v2
+        with:
+          path: dist/*
+
+  build_linux: 
+    name: package for linux
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with: 
+          python-version: '3.x'
+          architecture: 'x64'
+      - run: |
+          pip3 install -r requirements.txt
+          mkdir dist
+          shiv -c transport --compressed -p '/usr/bin/env python3' -o dist/transport-linux.pyz .
+      - uses: actions/upload-artifact@v2
+        with:
+          path: dist/*
+
+  release:
+    name: create release
+    needs: [build_windows, build_linux]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          path: dist/*
+      - run: ls -lah dist
+      - uses: actions/create-release@v1
+        id: create_release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+      - uses: dwenegar/upload-release-assets@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref }}
+        with:
+          release_id: ${{ steps.create_release.outputs.id }}
+          assets_path: ./dist
