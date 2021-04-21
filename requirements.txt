@@ -4,13 +4,15 @@ click==7.1.2
 et-xmlfile==1.0.1
 importlib-resources==5.0.0
 jdcal==1.4.1
-Jinja2==2.11.2
+Jinja2==2.11.3
 MarkupSafe==1.1.1
 openpyxl==3.0.5
 pycodestyle==2.6.0
 pyinstaller==4.1
 pyinstaller-hooks-contrib==2020.11
 shiv==0.4.0
+snakeviz==2.1.0
 sqlparse==0.4.1
 toml==0.10.2
+tornado==6.1
 zipp==3.4.0
