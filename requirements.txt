@@ -12,7 +12,7 @@ pyinstaller==4.1
 pyinstaller-hooks-contrib==2020.11
 shiv==0.4.0
 snakeviz==2.1.0
-sqlparse==0.4.1
+sqlparse==0.4.2
 toml==0.10.2
 tornado==6.1
 zipp==3.4.0
